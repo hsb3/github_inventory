@@ -85,13 +85,14 @@ wheels = [
 ]
 
 [[package]]
-name = "github_inventory"
+name = "github-inventory"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "pandas" },
     { name = "pydantic" },
     { name = "python-dotenv" },
+    { name = "pyyaml" },
 ]
 
 [package.optional-dependencies]
@@ -121,6 +122,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
     { name = "python-dotenv", specifier = ">=0.19.0" },
+    { name = "pyyaml", specifier = ">=6.0.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.0" },
     { name = "types-pyyaml", marker = "extra == 'dev'" },
 ]
