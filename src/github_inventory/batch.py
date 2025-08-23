@@ -154,7 +154,7 @@ def process_single_account(config: RunConfig, base_dir: str = "docs") -> bool:
         # Collect owned repositories
         print(f"\nCollecting owned repositories for: {account}")
         print("-" * 50)
-        owned_repos = collect_owned_repositories(account, limit)
+        owned_repos = collect_owned_repositories(account, limit, use_parallel=True)
 
         if owned_repos:
             owned_headers = [
@@ -177,7 +177,7 @@ def process_single_account(config: RunConfig, base_dir: str = "docs") -> bool:
         # Collect starred repositories
         print(f"\nCollecting starred repositories for: {account}")
         print("-" * 50)
-        starred_repos = collect_starred_repositories(account, limit)
+        starred_repos = collect_starred_repositories(account, limit, use_parallel=True)
 
         if starred_repos:
             starred_headers = [

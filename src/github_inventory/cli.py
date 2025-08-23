@@ -328,7 +328,7 @@ def main():
         print(f"\nCollecting owned repositories for user: {args.user}")
         print("-" * 50)
 
-        owned_repos = collect_owned_repositories(args.user, args.limit)
+        owned_repos = collect_owned_repositories(args.user, args.limit, use_parallel=True)
 
         if owned_repos:
             owned_headers = [
@@ -353,7 +353,7 @@ def main():
         print("\nCollecting starred repositories...")
         print("-" * 50)
 
-        starred_repos = collect_starred_repositories(args.user, args.limit)
+        starred_repos = collect_starred_repositories(args.user, args.limit, use_parallel=True)
 
         if starred_repos:
             starred_headers = [
