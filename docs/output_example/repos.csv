@@ -1,0 +1,51 @@
+name,description,url,visibility,is_fork,creation_date,last_update_date,default_branch,number_of_branches,primary_language,size
+sindresorhus.github.com,Personal website of Sindre Sorhus,https://github.com/sindresorhus/sindresorhus.github.com,public,false,2011-09-06,2025-08-23,main,1,Astro,67803
+yn,Parse yes/no like values,https://github.com/sindresorhus/yn,public,false,2014-08-06,2025-08-22,main,1,JavaScript,35
+uint8array-extras,Useful utilities for working with Uint8Array (and Buffer),https://github.com/sindresorhus/uint8array-extras,public,false,2023-10-24,2025-08-22,main,1,JavaScript,50
+string-width,Get the visual width of a string - the number of columns required to display it,https://github.com/sindresorhus/string-width,public,false,2015-07-16,2025-08-23,main,1,JavaScript,43
+p-throttle,Throttle promise-returning & async functions,https://github.com/sindresorhus/p-throttle,public,false,2016-10-21,2025-08-22,main,1,JavaScript,64
+sort-keys,Sort the keys of an object,https://github.com/sindresorhus/sort-keys,public,false,2014-06-28,2025-08-21,main,1,JavaScript,33
+p-retry,Retry a promise-returning or async function,https://github.com/sindresorhus/p-retry,public,false,2016-10-21,2025-08-23,main,1,JavaScript,90
+shell-path,Get the $PATH from the shell,https://github.com/sindresorhus/shell-path,public,false,2015-04-27,2025-08-21,main,1,JavaScript,28
+Defaults,💾 Swifty and modern UserDefaults,https://github.com/sindresorhus/Defaults,public,false,2018-04-11,2025-08-21,main,4,Swift,390
+yoctocolors,The smallest and fastest command-line coloring package on the internet,https://github.com/sindresorhus/yoctocolors,public,false,2021-10-01,2025-08-20,main,2,JavaScript,40
+ky,🌳 Tiny & elegant JavaScript HTTP client based on the Fetch API,https://github.com/sindresorhus/ky,public,false,2018-09-04,2025-08-23,main,1,TypeScript,1023
+electron-context-menu,Context menu for your Electron app,https://github.com/sindresorhus/electron-context-menu,public,false,2016-06-04,2025-08-22,main,1,JavaScript,324
+quick-lru,Simple “Least Recently Used” (LRU) cache,https://github.com/sindresorhus/quick-lru,public,false,2017-03-30,2025-08-21,main,1,JavaScript,62
+split-on-first,Split a string on the first occurrence of a given separator,https://github.com/sindresorhus/split-on-first,public,false,2019-02-07,2025-08-20,main,1,JavaScript,13
+cpy,Copy files,https://github.com/sindresorhus/cpy,public,false,2014-06-28,2025-08-20,main,1,JavaScript,124
+app-buddy-meta,,https://github.com/sindresorhus/app-buddy-meta,public,false,2024-10-20,2025-08-19,main,1,,5
+p-limit,Run multiple promise-returning & async functions with limited concurrency,https://github.com/sindresorhus/p-limit,public,false,2016-10-21,2025-08-23,main,1,JavaScript,55
+decamelize,Convert a camelized string into a lowercased one with a custom separator: unicornRainbow → unicorn_rainbow,https://github.com/sindresorhus/decamelize,public,false,2015-01-24,2025-08-19,main,1,JavaScript,38
+email-regex,Regular expression for matching email addresses,https://github.com/sindresorhus/email-regex,public,false,2014-09-07,2025-08-19,main,1,JavaScript,28
+is-in-ci,Check if the process is running in a Continuous Integration (CI) environment,https://github.com/sindresorhus/is-in-ci,public,false,2023-10-27,2025-08-21,main,1,JavaScript,8
+default-browser-meta,,https://github.com/sindresorhus/default-browser-meta,public,false,2025-01-13,2025-08-17,main,1,,3
+ts-extras,Essential utilities for TypeScript projects,https://github.com/sindresorhus/ts-extras,public,false,2021-10-15,2025-08-21,main,1,TypeScript,59
+get-port-cli,Get an available port,https://github.com/sindresorhus/get-port-cli,public,false,2015-10-26,2025-08-15,main,1,JavaScript,49
+nano-spawn,Tiny process execution for humans — a better child_process,https://github.com/sindresorhus/nano-spawn,public,false,2024-08-19,2025-08-20,main,1,JavaScript,486
+open-cli,"Open stuff like URLs, files, executables. Cross-platform.",https://github.com/sindresorhus/open-cli,public,false,2015-06-29,2025-08-20,main,1,JavaScript,32
+replace-in-files-cli,Replace matching strings and regexes in files,https://github.com/sindresorhus/replace-in-files-cli,public,false,2019-06-12,2025-08-14,main,1,JavaScript,23
+wsl-utils,Utilities for working with Windows Subsystem for Linux (WSL),https://github.com/sindresorhus/wsl-utils,public,false,2025-05-23,2025-08-14,main,1,JavaScript,4
+p-memoize,Memoize promise-returning & async functions,https://github.com/sindresorhus/p-memoize,public,false,2016-10-21,2025-08-18,main,1,TypeScript,80
+cpy-cli,Copy files,https://github.com/sindresorhus/cpy-cli,public,false,2016-01-03,2025-08-13,main,2,JavaScript,26
+copy-file,Copy a file,https://github.com/sindresorhus/copy-file,public,false,2014-06-28,2025-08-13,main,1,JavaScript,131
+awesome-whisper,🔊 Awesome list for Whisper — an open-source AI-powered speech recognition system developed by OpenAI,https://github.com/sindresorhus/awesome-whisper,public,false,2023-05-10,2025-08-22,main,1,,1182
+execa,Process execution for humans,https://github.com/sindresorhus/execa,public,false,2015-12-05,2025-08-22,main,1,JavaScript,2595
+pretty-bytes,Convert bytes to a human readable string: 1337 → 1.34 kB,https://github.com/sindresorhus/pretty-bytes,public,false,2014-02-09,2025-08-23,main,1,JavaScript,58
+eslint-plugin-unicorn,More than 100 powerful ESLint rules,https://github.com/sindresorhus/eslint-plugin-unicorn,public,false,2016-04-09,2025-08-23,main,2,JavaScript,6170
+np,A better `npm publish`,https://github.com/sindresorhus/np,public,false,2015-08-16,2025-08-16,main,2,JavaScript,1096
+type-fest,A collection of essential TypeScript types,https://github.com/sindresorhus/type-fest,public,false,2019-03-13,2025-08-23,main,2,TypeScript,2288
+tsconfig,Shared TypeScript config for my projects,https://github.com/sindresorhus/tsconfig,public,false,2018-11-30,2025-08-22,main,1,,36
+strip-json-comments,Strip comments from JSON. Lets you use comments in your JSON files!,https://github.com/sindresorhus/strip-json-comments,public,false,2013-11-17,2025-08-10,main,1,JavaScript,138
+editorconfig-sublime,Sublime Text plugin for EditorConfig - Helps developers maintain consistent coding styles between different editors,https://github.com/sindresorhus/editorconfig-sublime,public,false,2012-05-30,2025-08-10,main,1,Python,80
+linkify-issues,Linkify GitHub issue references,https://github.com/sindresorhus/linkify-issues,public,false,2017-06-02,2025-08-12,main,1,JavaScript,32
+globals,Global identifiers from different JavaScript environments,https://github.com/sindresorhus/globals,public,false,2013-12-14,2025-08-15,main,2,JavaScript,375
+html-tags,List of standard HTML tags,https://github.com/sindresorhus/html-tags,public,false,2013-12-13,2025-08-12,main,1,JavaScript,36
+supercharge-meta,,https://github.com/sindresorhus/supercharge-meta,public,false,2024-09-28,2025-07-31,main,1,,36
+got,🌐 Human-friendly and powerful HTTP request library for Node.js,https://github.com/sindresorhus/got,public,false,2014-03-27,2025-08-23,main,2,TypeScript,3117
+open,"Open stuff like URLs, files, executables. Cross-platform.",https://github.com/sindresorhus/open,public,false,2014-04-05,2025-08-23,main,1,JavaScript,200
+ponyfill,🦄 Like polyfill but with pony pureness,https://github.com/sindresorhus/ponyfill,public,false,2016-09-29,2025-08-10,main,1,,568
+awesome,😎 Awesome lists about all kinds of interesting topics,https://github.com/sindresorhus/awesome,public,false,2014-07-11,2025-08-23,main,2,,1500
+fast-cli,Test your download and upload speed using fast.com,https://github.com/sindresorhus/fast-cli,public,false,2016-05-18,2025-08-22,main,1,TypeScript,1467
+windows-clipboard,Access the Windows clipboard (copy/paste),https://github.com/sindresorhus/windows-clipboard,public,false,2017-04-22,2025-07-17,main,1,Batchfile,15
+file-type,"Detect the file type of a file, stream, or data",https://github.com/sindresorhus/file-type,public,false,2014-04-24,2025-08-21,main,7,JavaScript,91255
