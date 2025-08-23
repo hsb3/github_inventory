@@ -36,18 +36,18 @@ def get_output_base():
 def open_directory(directory_path):
     """Open directory in the default file manager"""
     abs_path = os.path.abspath(directory_path)
-    
+
     if not os.path.exists(abs_path):
         os.makedirs(abs_path, exist_ok=True)
-    
+
     system = platform.system()
     try:
         if system == "Darwin":  # macOS
-            subprocess.run(["open", abs_path], check=True)
+            subprocess.run(["open", abs_path], check=True)  # noqa: S603, S607
         elif system == "Windows":
-            subprocess.run(["explorer", abs_path], check=True)
+            subprocess.run(["explorer", abs_path], check=True)  # noqa: S603, S607
         else:  # Linux and others
-            subprocess.run(["xdg-open", abs_path], check=True)
+            subprocess.run(["xdg-open", abs_path], check=True)  # noqa: S603, S607
         print(f"📂 Opened {abs_path}")
     except subprocess.CalledProcessError:
         print(f"❌ Could not open directory. Path: {abs_path}")
