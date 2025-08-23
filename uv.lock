@@ -85,7 +85,7 @@ wheels = [
 ]
 
 [[package]]
-name = "github-inventory"
+name = "github_inventory"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

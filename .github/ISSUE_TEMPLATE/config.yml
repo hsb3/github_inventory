@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: GitHub Discussions
-    url: https://github.com/hsb3/github-inventory/discussions
+    url: https://github.com/hsb3/github_inventory/discussions
     about: Ask questions and discuss ideas with the community
   - name: GitHub CLI Documentation
     url: https://cli.github.com/manual/

@@ -4,7 +4,7 @@ Thank you for your interest in contributing to GitHub Inventory! This document p
 
 ## Before You Start
 
-- Check existing [issues](https://github.com/hsb3/github-inventory/issues) and [pull requests](https://github.com/hsb3/github-inventory/pulls) to avoid duplicates
+- Check existing [issues](https://github.com/hsb3/github_inventory/issues) and [pull requests](https://github.com/hsb3/github_inventory/pulls) to avoid duplicates
 - Make sure you have the GitHub CLI (`gh`) installed and authenticated
 - Familiarize yourself with the project by reading the main [README.md](../README.md)
 
@@ -43,7 +43,7 @@ Use the **Feature Request** template and include:
 - **GitHub API considerations**: Rate limits, permissions, etc.
 
 ### Questions
-For usage questions, use the **Question** template or start a [Discussion](https://github.com/hsb3/github-inventory/discussions).
+For usage questions, use the **Question** template or start a [Discussion](https://github.com/hsb3/github_inventory/discussions).
 
 ## Submitting Pull Requests
 
@@ -51,8 +51,8 @@ For usage questions, use the **Question** template or start a [Discussion](https
 1. Fork the repository
 2. Clone your fork:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/github-inventory.git
-   cd github-inventory
+   git clone https://github.com/YOUR_USERNAME/github_inventory.git
+   cd github_inventory
    ```
 3. Set up development environment:
    ```bash
@@ -144,9 +144,9 @@ This tool heavily relies on the GitHub CLI:
 
 ## Getting Help
 
-- **Questions**: Use [Discussions](https://github.com/hsb3/github-inventory/discussions)
-- **Bugs**: Create an [Issue](https://github.com/hsb3/github-inventory/issues) with the Bug Report template
-- **Features**: Create an [Issue](https://github.com/hsb3/github-inventory/issues) with the Feature Request template
+- **Questions**: Use [Discussions](https://github.com/hsb3/github_inventory/discussions)
+- **Bugs**: Create an [Issue](https://github.com/hsb3/github_inventory/issues) with the Bug Report template
+- **Features**: Create an [Issue](https://github.com/hsb3/github_inventory/issues) with the Feature Request template
 
 ## Review Process
 

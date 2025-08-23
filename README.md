@@ -37,8 +37,8 @@ gh auth login
 
 ```bash
 # Clone and setup
-git clone https://github.com/hsb3/github-inventory.git
-cd github-inventory
+git clone https://github.com/hsb3/github_inventory.git
+cd github_inventory
 uv sync
 
 # Try the example (50 repos from sindresorhus)
@@ -53,8 +53,8 @@ The example generates comprehensive reports in `docs/output_example/` showing ow
 ## Installation
 
 ```bash
-git clone https://github.com/hsb3/github-inventory.git
-cd github-inventory
+git clone https://github.com/hsb3/github_inventory.git
+cd github_inventory
 uv sync
 ```
 
@@ -269,8 +269,8 @@ gh auth login
 ### Setup Development Environment
 
 ```bash
-git clone https://github.com/hsb3/github-inventory.git
-cd github-inventory
+git clone https://github.com/hsb3/github_inventory.git
+cd github_inventory
 uv sync --all-groups
 ```
 
@@ -284,7 +284,7 @@ make dev
 ### Project Structure
 
 ```
-github-inventory/
+github_inventory/
 ├── src/github_inventory/
 │   ├── __init__.py
 │   ├── cli.py          # Command-line interface
