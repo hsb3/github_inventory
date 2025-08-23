@@ -16,6 +16,7 @@ from .batch import get_default_configs, load_config_from_file, run_batch_process
 from .inventory import (
     collect_owned_repositories,
     collect_starred_repositories,
+    create_github_client,
     write_to_csv,
 )
 from .report import generate_markdown_report, read_csv_data
@@ -179,6 +180,18 @@ Examples:
         help="Run batch processing with custom configuration file (JSON/YAML)",
     )
 
+    parser.add_argument(
+        "--client-type",
+        choices=["cli", "api"],
+        default="cli",
+        help="GitHub client type to use (default: cli)",
+    )
+
+    parser.add_argument(
+        "--github-token",
+        help="GitHub API token for direct API access (required for --client-type=api)",
+    )
+
     return parser
 
 
@@ -273,6 +286,22 @@ def main():
         run_batch_processing(configs)
         return
 
+    # Validate client type and token
+    if args.client_type == "api" and not args.github_token:
+        print("Error: --github-token is required when using --client-type=api")
+        sys.exit(1)
+
+    # Create GitHub client
+    github_client = create_github_client(args.client_type, args.github_token)
+
+    # Check authentication
+    if not github_client.is_authenticated():
+        if args.client_type == "cli":
+            print("Error: GitHub CLI is not authenticated. Run 'gh auth login'")
+        else:
+            print("Error: GitHub API token is invalid or missing required permissions")
+        sys.exit(1)
+
     owned_repos = []
     starred_repos = []
 
@@ -328,7 +357,7 @@ def main():
         print(f"\nCollecting owned repositories for user: {args.user}")
         print("-" * 50)
 
-        owned_repos = collect_owned_repositories(args.user, args.limit)
+        owned_repos = collect_owned_repositories(args.user, args.limit, github_client)
 
         if owned_repos:
             owned_headers = [
@@ -353,7 +382,7 @@ def main():
         print("\nCollecting starred repositories...")
         print("-" * 50)
 
-        starred_repos = collect_starred_repositories(args.user, args.limit)
+        starred_repos = collect_starred_repositories(args.user, args.limit, github_client)
 
         if starred_repos:
             starred_headers = [

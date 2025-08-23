@@ -18,6 +18,7 @@ from github_inventory.inventory import (
     run_gh_command,
     write_to_csv,
 )
+from github_inventory.github_client import MockGitHubClient
 
 
 class TestGitHubCLICommands:
@@ -47,45 +48,41 @@ class TestGitHubCLICommands:
 
         assert result is None
 
-    @patch("github_inventory.inventory.run_gh_command")
-    def test_get_repo_list_success(self, mock_run_gh):
-        """Test successful repository list retrieval"""
+    def test_get_repo_list_success(self):
+        """Test successful repository list retrieval with mock client"""
         mock_repos = [
             {"name": "repo1", "description": "Test repo 1"},
             {"name": "repo2", "description": "Test repo 2"},
         ]
-        mock_run_gh.return_value = json.dumps(mock_repos)
+        mock_client = MockGitHubClient(mock_repos=mock_repos)
 
-        result = get_repo_list("testuser")
+        result = get_repo_list("testuser", client=mock_client)
 
         assert len(result) == 2
         assert result[0]["name"] == "repo1"
         assert result[1]["name"] == "repo2"
 
-    @patch("github_inventory.inventory.run_gh_command")
-    def test_get_repo_list_empty(self, mock_run_gh):
-        """Test empty repository list"""
-        mock_run_gh.return_value = None
+    def test_get_repo_list_empty(self):
+        """Test empty repository list with mock client"""
+        mock_client = MockGitHubClient(mock_repos=[])
 
-        result = get_repo_list("testuser")
+        result = get_repo_list("testuser", client=mock_client)
 
         assert result == []
 
-    @patch("github_inventory.inventory.run_gh_command")
-    def test_get_branch_count_success(self, mock_run_gh):
-        """Test successful branch count retrieval"""
-        mock_run_gh.return_value = "5"
+    def test_get_branch_count_success(self):
+        """Test successful branch count retrieval with mock client"""
+        mock_client = MockGitHubClient(mock_branch_count=5)
 
-        result = get_branch_count("owner", "repo")
+        result = get_branch_count("owner", "repo", client=mock_client)
 
         assert result == 5
 
-    @patch("github_inventory.inventory.run_gh_command")
-    def test_get_branch_count_failure(self, mock_run_gh):
-        """Test failed branch count retrieval"""
-        mock_run_gh.return_value = None
+    def test_get_branch_count_failure(self):
+        """Test failed branch count retrieval with mock client"""
+        mock_client = MockGitHubClient(mock_branch_count="unknown")
 
-        result = get_branch_count("owner", "repo")
+        result = get_branch_count("owner", "repo", client=mock_client)
 
         assert result == "unknown"
 
@@ -117,10 +114,8 @@ class TestDataFormatting:
 class TestRepositoryCollection:
     """Test repository data collection"""
 
-    @patch("github_inventory.inventory.get_branch_count")
-    @patch("github_inventory.inventory.get_repo_list")
-    def test_collect_owned_repositories(self, mock_get_repos, mock_get_branches):
-        """Test collecting owned repositories"""
+    def test_collect_owned_repositories(self):
+        """Test collecting owned repositories with mock client"""
         mock_repos = [
             {
                 "name": "test-repo",
@@ -135,10 +130,9 @@ class TestRepositoryCollection:
                 "diskUsage": 1024,
             }
         ]
-        mock_get_repos.return_value = mock_repos
-        mock_get_branches.return_value = 3
+        mock_client = MockGitHubClient(mock_repos=mock_repos, mock_branch_count=3)
 
-        result = collect_owned_repositories("testuser")
+        result = collect_owned_repositories("testuser", client=mock_client)
 
         assert len(result) == 1
         repo = result[0]
@@ -149,12 +143,11 @@ class TestRepositoryCollection:
         assert repo["number_of_branches"] == "3"
         assert repo["primary_language"] == "Python"
 
-    @patch("github_inventory.inventory.get_repo_list")
-    def test_collect_owned_repositories_empty(self, mock_get_repos):
+    def test_collect_owned_repositories_empty(self):
         """Test collecting owned repositories when none exist"""
-        mock_get_repos.return_value = []
+        mock_client = MockGitHubClient(mock_repos=[])
 
-        result = collect_owned_repositories("testuser")
+        result = collect_owned_repositories("testuser", client=mock_client)
 
         assert result == []
 
@@ -249,10 +242,9 @@ def sample_repo_data():
 class TestRepositoryDataProcessing:
     """Test repository data processing with fixtures"""
 
-    @patch("github_inventory.inventory.get_branch_count")
-    def test_repo_data_transformation(self, mock_get_branches, sample_repo_data):
+    def test_repo_data_transformation(self, sample_repo_data):
         """Test transformation of raw repo data to standardized format"""
-        mock_get_branches.return_value = 7
+        mock_client = MockGitHubClient(mock_branch_count=7)
 
         # Simulate the transformation logic from collect_owned_repositories
         repo_data = {

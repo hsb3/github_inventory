@@ -9,8 +9,20 @@ import json
 import shlex
 import subprocess
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from .github_client import GitHubClient, CLIGitHubClient, APIGitHubClient, MockGitHubClient
 
 
+def create_github_client(client_type: str = "cli", token: Optional[str] = None) -> GitHubClient:
+    """Create a GitHub client instance based on type"""
+    if client_type == "api":
+        return APIGitHubClient(token=token)
+    else:  # default to CLI
+        return CLIGitHubClient()
+
+
+# Deprecated: kept for backward compatibility
 def run_gh_command(cmd):
     """Run a GitHub CLI command and return the result"""
     try:
@@ -26,36 +38,20 @@ def run_gh_command(cmd):
         return None
 
 
-def get_repo_list(username, limit=None):
+def get_repo_list(username: str, limit: Optional[int] = None, client: Optional[GitHubClient] = None) -> List[Dict[str, Any]]:
     """Get list of all repositories for a user"""
-    print("Getting repository list...")
-
-    # Get all repos with detailed JSON output
-    limit_param = f"--limit {limit}" if limit is not None else "--limit 1000"
-    cmd = f'gh repo list {username} {limit_param} --json "name,description,url,isPrivate,isFork,createdAt,updatedAt,defaultBranchRef,primaryLanguage,diskUsage"'
-
-    output = run_gh_command(cmd)
-    if not output:
-        return []
-
-    try:
-        repos = json.loads(output)
-        print(f"Found {len(repos)} repositories")
-        return repos
-    except json.JSONDecodeError as e:
-        print(f"Error parsing JSON: {e}")
-        return []
+    if client is None:
+        client = CLIGitHubClient()
+    
+    return client.get_repositories(username, limit)
 
 
-def get_branch_count(owner, repo_name):
+def get_branch_count(owner: str, repo_name: str, client: Optional[GitHubClient] = None) -> int | str:
     """Get the number of branches for a repository"""
-    cmd = f'gh api repos/{owner}/{repo_name}/branches --jq "length"'
-    result = run_gh_command(cmd)
-
-    if result and result.isdigit():
-        return int(result)
-    else:
-        return "unknown"
+    if client is None:
+        client = CLIGitHubClient()
+    
+    return client.get_branch_count(owner, repo_name)
 
 
 def format_date(date_str):
@@ -70,9 +66,12 @@ def format_date(date_str):
         return date_str
 
 
-def collect_owned_repositories(username, limit=None):
+def collect_owned_repositories(username: str, limit: Optional[int] = None, client: Optional[GitHubClient] = None) -> List[Dict[str, Any]]:
     """Process all repositories and gather detailed information"""
-    repos = get_repo_list(username, limit)
+    if client is None:
+        client = CLIGitHubClient()
+    
+    repos = get_repo_list(username, limit, client)
     if not repos:
         print("No repositories found or error occurred")
         return []
@@ -83,7 +82,7 @@ def collect_owned_repositories(username, limit=None):
         print(f"Processing repository {i}/{len(repos)}: {repo['name']}")
 
         # Get branch count
-        branch_count = get_branch_count(username, repo["name"])
+        branch_count = get_branch_count(username, repo["name"], client)
 
         # Extract and format data
         repo_data = {
@@ -113,48 +112,20 @@ def collect_owned_repositories(username, limit=None):
     return detailed_repos
 
 
-def get_starred_repos(username=None, limit=None):
+def get_starred_repos(username: Optional[str] = None, limit: Optional[int] = None, client: Optional[GitHubClient] = None) -> List[Dict[str, Any]]:
     """Get list of all starred repositories"""
-    print("Getting starred repositories...")
-
-    # Get all starred repos with detailed JSON output - using paginate to get all
-    if username:
-        if limit is not None:
-            cmd = f'gh api users/{username}/starred --jq ".[0:{limit}]"'
-        else:
-            cmd = f'gh api users/{username}/starred --paginate --jq "."'
-    else:
-        if limit is not None:
-            cmd = f'gh api user/starred --jq ".[0:{limit}]"'
-        else:
-            cmd = 'gh api user/starred --paginate --jq "."'
-
-    output = run_gh_command(cmd)
-    if not output:
-        return []
-
-    try:
-        # The paginated output might be multiple JSON arrays, so we need to parse each line
-        starred_repos = []
-        for line in output.strip().split("\n"):
-            if line.strip():
-                repos_batch = json.loads(line)
-                if isinstance(repos_batch, list):
-                    starred_repos.extend(repos_batch)
-                else:
-                    starred_repos.append(repos_batch)
-
-        print(f"Found {len(starred_repos)} starred repositories")
-        return starred_repos
-    except json.JSONDecodeError as e:
-        print(f"Error parsing JSON: {e}")
-        print(f"Raw output: {output[:500]}...")
-        return []
+    if client is None:
+        client = CLIGitHubClient()
+    
+    return client.get_starred_repositories(username, limit)
 
 
-def collect_starred_repositories(username=None, limit=None):
+def collect_starred_repositories(username: Optional[str] = None, limit: Optional[int] = None, client: Optional[GitHubClient] = None) -> List[Dict[str, Any]]:
     """Process all starred repositories and gather detailed information"""
-    repos = get_starred_repos(username, limit)
+    if client is None:
+        client = CLIGitHubClient()
+    
+    repos = get_starred_repos(username, limit, client)
     if not repos:
         print("No starred repositories found or error occurred")
         return []
@@ -166,7 +137,7 @@ def collect_starred_repositories(username=None, limit=None):
 
         # Get branch count
         branch_count = get_branch_count(
-            repo.get("owner", {}).get("login", ""), repo["name"]
+            repo.get("owner", {}).get("login", ""), repo["name"], client
         )
 
         # Extract and format data
