@@ -10,9 +10,26 @@ import shlex
 import subprocess
 from datetime import datetime
 
+from .exceptions import (
+    AuthenticationError,
+    DataProcessingError,
+    GitHubCLIError,
+)
+
 
 def run_gh_command(cmd):
-    """Run a GitHub CLI command and return the result"""
+    """Run a GitHub CLI command and return the result
+    
+    Args:
+        cmd: GitHub CLI command to run (string or list of args)
+        
+    Returns:
+        str: Command output
+        
+    Raises:
+        GitHubCLIError: When the GitHub CLI command fails
+        AuthenticationError: When authentication is required but missing
+    """
     try:
         # Use shlex.split() for security instead of shell=True
         cmd_args = shlex.split(cmd) if isinstance(cmd, str) else cmd
@@ -21,13 +38,33 @@ def run_gh_command(cmd):
         )
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
-        print(f"Error running command: {cmd}")
-        print(f"Error: {e.stderr}")
-        return None
+        stderr = e.stderr.strip() if e.stderr else ""
+        
+        # Check for common authentication errors
+        if "authentication" in stderr.lower() or "login" in stderr.lower():
+            raise AuthenticationError(
+                "GitHub CLI authentication required. Please run 'gh auth login'"
+            ) from e
+        
+        # Raise GitHubCLIError with details
+        raise GitHubCLIError(cmd, stderr, e.returncode) from e
 
 
 def get_repo_list(username, limit=None):
-    """Get list of all repositories for a user"""
+    """Get list of all repositories for a user
+    
+    Args:
+        username: GitHub username
+        limit: Maximum number of repositories to fetch
+        
+    Returns:
+        list: List of repository data dictionaries
+        
+    Raises:
+        GitHubCLIError: When GitHub CLI command fails
+        AuthenticationError: When authentication is required
+        DataProcessingError: When JSON parsing fails
+    """
     print("Getting repository list...")
 
     # Get all repos with detailed JSON output
@@ -43,18 +80,32 @@ def get_repo_list(username, limit=None):
         print(f"Found {len(repos)} repositories")
         return repos
     except json.JSONDecodeError as e:
-        print(f"Error parsing JSON: {e}")
-        return []
+        raise DataProcessingError(
+            "JSON parsing of repository list",
+            f"Failed to parse GitHub CLI output: {e}"
+        ) from e
 
 
 def get_branch_count(owner, repo_name):
-    """Get the number of branches for a repository"""
+    """Get the number of branches for a repository
+    
+    Args:
+        owner: Repository owner username
+        repo_name: Repository name
+        
+    Returns:
+        int or str: Number of branches, or "unknown" if unable to determine
+    """
     cmd = f'gh api repos/{owner}/{repo_name}/branches --jq "length"'
-    result = run_gh_command(cmd)
-
-    if result and result.isdigit():
-        return int(result)
-    else:
+    try:
+        result = run_gh_command(cmd)
+        if result and result.isdigit():
+            return int(result)
+        else:
+            return "unknown"
+    except GitHubCLIError:
+        # If branch count fails, return "unknown" instead of failing completely
+        # This allows the main inventory process to continue
         return "unknown"
 
 
@@ -114,7 +165,20 @@ def collect_owned_repositories(username, limit=None):
 
 
 def get_starred_repos(username=None, limit=None):
-    """Get list of all starred repositories"""
+    """Get list of all starred repositories
+    
+    Args:
+        username: GitHub username (None for authenticated user)
+        limit: Maximum number of starred repositories to fetch
+        
+    Returns:
+        list: List of starred repository data dictionaries
+        
+    Raises:
+        GitHubCLIError: When GitHub CLI command fails
+        AuthenticationError: When authentication is required
+        DataProcessingError: When JSON parsing fails
+    """
     print("Getting starred repositories...")
 
     # Get all starred repos with detailed JSON output - using paginate to get all
@@ -147,9 +211,10 @@ def get_starred_repos(username=None, limit=None):
         print(f"Found {len(starred_repos)} starred repositories")
         return starred_repos
     except json.JSONDecodeError as e:
-        print(f"Error parsing JSON: {e}")
-        print(f"Raw output: {output[:500]}...")
-        return []
+        raise DataProcessingError(
+            "JSON parsing of starred repositories",
+            f"Failed to parse GitHub CLI output: {e}\nRaw output: {output[:500]}..."
+        ) from e
 
 
 def collect_starred_repositories(username=None, limit=None):

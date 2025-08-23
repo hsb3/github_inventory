@@ -13,6 +13,13 @@ import sys
 from dotenv import load_dotenv
 
 from .batch import get_default_configs, load_config_from_file, run_batch_processing
+from .exceptions import (
+    AuthenticationError,
+    ConfigurationError,
+    DataProcessingError,
+    GitHubCLIError,
+    GitHubInventoryError,
+)
 from .inventory import (
     collect_owned_repositories,
     collect_starred_repositories,
@@ -263,15 +270,25 @@ def main():
             print("Error: Cannot use --batch and --config together")
             sys.exit(1)
 
-        if args.batch:
-            print("Running batch processing with default configurations...")
-            configs = get_default_configs()
-        else:
-            print(f"Running batch processing with config file: {args.config}")
-            configs = load_config_from_file(args.config)
+        try:
+            if args.batch:
+                print("Running batch processing with default configurations...")
+                configs = get_default_configs()
+            else:
+                print(f"Running batch processing with config file: {args.config}")
+                configs = load_config_from_file(args.config)
 
-        run_batch_processing(configs)
-        return
+            run_batch_processing(configs)
+            return
+        except ConfigurationError as e:
+            print(f"❌ Configuration error: {e}")
+            sys.exit(1)
+        except RuntimeError as e:
+            # Batch processing failures are already logged, just exit
+            sys.exit(1)
+        except GitHubInventoryError as e:
+            print(f"❌ Error: {e}")
+            sys.exit(1)
 
     owned_repos = []
     starred_repos = []
@@ -301,105 +318,133 @@ def main():
     # Handle report-only mode
     if args.report_only:
         print("Generating report from existing CSV files...")
+        try:
+            owned_repos = read_csv_data(args.owned_csv)
+            starred_repos = read_csv_data(args.starred_csv)
 
-        owned_repos = read_csv_data(args.owned_csv)
-        starred_repos = read_csv_data(args.starred_csv)
+            if not owned_repos and not starred_repos:
+                print(
+                    "Error: No existing CSV files found. Run without --report-only first."
+                )
+                sys.exit(1)
 
-        if not owned_repos and not starred_repos:
-            print(
-                "Error: No existing CSV files found. Run without --report-only first."
+            success = generate_markdown_report(
+                owned_repos=owned_repos,
+                starred_repos=starred_repos,
+                username=args.user,
+                output_file=args.report_md,
+                limit_applied=args.limit,
             )
+
+            if success:
+                print_summary(owned_repos, starred_repos)
+            sys.exit(0 if success else 1)
+        except GitHubInventoryError as e:
+            print(f"❌ Error generating report: {e}")
             sys.exit(1)
-
-        success = generate_markdown_report(
-            owned_repos=owned_repos,
-            starred_repos=starred_repos,
-            username=args.user,
-            output_file=args.report_md,
-            limit_applied=args.limit,
-        )
-
-        if success:
-            print_summary(owned_repos, starred_repos)
-        sys.exit(0 if success else 1)
 
     # Collect owned repositories
     if not args.starred_only:
         print(f"\nCollecting owned repositories for user: {args.user}")
         print("-" * 50)
+        try:
+            owned_repos = collect_owned_repositories(args.user, args.limit)
 
-        owned_repos = collect_owned_repositories(args.user, args.limit)
-
-        if owned_repos:
-            owned_headers = [
-                "name",
-                "description",
-                "url",
-                "visibility",
-                "is_fork",
-                "creation_date",
-                "last_update_date",
-                "default_branch",
-                "number_of_branches",
-                "primary_language",
-                "size",
-            ]
-            write_to_csv(owned_repos, args.owned_csv, owned_headers)
-        else:
-            print("Failed to collect owned repositories")
+            if owned_repos:
+                owned_headers = [
+                    "name",
+                    "description",
+                    "url",
+                    "visibility",
+                    "is_fork",
+                    "creation_date",
+                    "last_update_date",
+                    "default_branch",
+                    "number_of_branches",
+                    "primary_language",
+                    "size",
+                ]
+                write_to_csv(owned_repos, args.owned_csv, owned_headers)
+            else:
+                print("No owned repositories found")
+        except AuthenticationError as e:
+            print(f"❌ {e}")
+            print("Please run 'gh auth login' and try again.")
+            sys.exit(1)
+        except GitHubCLIError as e:
+            print(f"❌ GitHub CLI error: {e}")
+            print("Please check your GitHub CLI installation and authentication.")
+            sys.exit(1)
+        except GitHubInventoryError as e:
+            print(f"❌ Error collecting owned repositories: {e}")
+            sys.exit(1)
 
     # Collect starred repositories
     if not args.owned_only:
         print("\nCollecting starred repositories...")
         print("-" * 50)
+        try:
+            starred_repos = collect_starred_repositories(args.user, args.limit)
 
-        starred_repos = collect_starred_repositories(args.user, args.limit)
-
-        if starred_repos:
-            starred_headers = [
-                "name",
-                "full_name",
-                "owner",
-                "description",
-                "url",
-                "visibility",
-                "is_fork",
-                "creation_date",
-                "last_update_date",
-                "last_push_date",
-                "default_branch",
-                "number_of_branches",
-                "primary_language",
-                "size",
-                "stars",
-                "forks",
-                "watchers",
-                "open_issues",
-                "license",
-                "topics",
-                "homepage",
-                "archived",
-                "disabled",
-            ]
-            write_to_csv(starred_repos, args.starred_csv, starred_headers)
-        else:
-            print("Failed to collect starred repositories")
+            if starred_repos:
+                starred_headers = [
+                    "name",
+                    "full_name",
+                    "owner",
+                    "description",
+                    "url",
+                    "visibility",
+                    "is_fork",
+                    "creation_date",
+                    "last_update_date",
+                    "last_push_date",
+                    "default_branch",
+                    "number_of_branches",
+                    "primary_language",
+                    "size",
+                    "stars",
+                    "forks",
+                    "watchers",
+                    "open_issues",
+                    "license",
+                    "topics",
+                    "homepage",
+                    "archived",
+                    "disabled",
+                ]
+                write_to_csv(starred_repos, args.starred_csv, starred_headers)
+            else:
+                print("No starred repositories found")
+        except AuthenticationError as e:
+            print(f"❌ {e}")
+            print("Please run 'gh auth login' and try again.")
+            sys.exit(1)
+        except GitHubCLIError as e:
+            print(f"❌ GitHub CLI error: {e}")
+            print("Please check your GitHub CLI installation and authentication.")
+            sys.exit(1)
+        except GitHubInventoryError as e:
+            print(f"❌ Error collecting starred repositories: {e}")
+            sys.exit(1)
 
     # Generate markdown report
     if not args.no_report and (owned_repos or starred_repos):
         print("\nGenerating markdown report...")
         print("-" * 50)
+        try:
+            success = generate_markdown_report(
+                owned_repos=owned_repos,
+                starred_repos=starred_repos,
+                username=args.user,
+                output_file=args.report_md,
+                limit_applied=args.limit,
+            )
 
-        success = generate_markdown_report(
-            owned_repos=owned_repos,
-            starred_repos=starred_repos,
-            username=args.user,
-            output_file=args.report_md,
-            limit_applied=args.limit,
-        )
-
-        if not success:
-            print("Failed to generate markdown report")
+            if not success:
+                print("Failed to generate markdown report")
+                sys.exit(1)
+        except GitHubInventoryError as e:
+            print(f"❌ Error generating report: {e}")
             sys.exit(1)
 
     # Print summary
@@ -408,7 +453,6 @@ def main():
         print("\n✅ GitHub inventory completed successfully!")
     else:
         print("❌ No data collected. Please check your GitHub CLI authentication.")
-        sys.exit(1)
 
 
 if __name__ == "__main__":
