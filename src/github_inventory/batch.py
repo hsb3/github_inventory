@@ -37,9 +37,9 @@ def get_default_configs() -> ConfigsToRun:
     """Get the default configuration for batch processing"""
     return ConfigsToRun(
         configs=[
-            RunConfig(account="langchain-ai", limit=100),
-            RunConfig(account="aider-ai"),
-            RunConfig(account="dlt-hub"),
+            RunConfig(account="microsoft", limit=50),
+            RunConfig(account="google", limit=50),
+            RunConfig(account="facebook", limit=50),
         ]
     )
 

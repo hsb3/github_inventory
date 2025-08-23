@@ -1,6 +1,10 @@
 # Generated files
 docs/*/
 !docs/output_example/
+*.yaml
+*.json
+!config_example.json
+!config_example.yaml
 
 # personal configuration
 myconfig.json

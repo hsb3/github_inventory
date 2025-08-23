@@ -27,7 +27,7 @@ configs:
   #   limit: 75
 
 # Usage:
-# uv run gh-inventory --config config_example.yaml
+# uv run ghscan --config config_example.yaml
 #
 # Output will be generated in docs/{account}/ directories with:
 # - repos.csv (owned repositories)

@@ -44,7 +44,7 @@ uv run ghscan --user username --owned-only
 # Limit results for large accounts  
 uv run ghscan --user sindresorhus --limit 50
 
-# Batch process multiple accounts
+# Batch process multiple accounts (default: microsoft, google, facebook)
 uv run ghscan --batch
 
 # Custom configuration file (JSON/YAML)
@@ -58,10 +58,11 @@ For batch processing multiple accounts, create a JSON or YAML configuration file
 ```yaml
 # accounts.yaml
 configs:
-  - account: "langchain-ai"
-    limit: 100
-  - account: "microsoft" 
+  - account: "microsoft"
+    limit: 50
   - account: "google"
+    limit: 50
+  - account: "facebook" 
     limit: 50
 ```
 
@@ -70,7 +71,7 @@ configs:
 uv run ghscan --config accounts.yaml
 ```
 
-**Note**: Configuration files are **not** automatically detected - you must specify them with `--config filename`. Supports `.json`, `.yml`, and `.yaml` extensions.
+**Note**: Configuration files are **not** automatically detected - you must specify them with `--config filename`. When using `--batch` without a config file, it processes microsoft, google, and facebook accounts with a 50 repository limit each. Supports `.json`, `.yml`, and `.yaml` extensions.
 
 ## Environment Configuration
 
