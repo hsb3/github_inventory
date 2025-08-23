@@ -186,9 +186,9 @@ def print_summary(owned_repos, starred_repos):
                 starred_languages[lang] = starred_languages.get(lang, 0) + 1
 
         if starred_languages:
-            top_languages = sorted(starred_languages.items(), key=lambda x: x[1], reverse=True)[
-                :3
-            ]
+            top_languages = sorted(
+                starred_languages.items(), key=lambda x: x[1], reverse=True
+            )[:3]
             lang_str = " | ".join([f"{lang}: {count}" for lang, count in top_languages])
             print(f"   - Top languages: {lang_str}")
 
