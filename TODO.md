@@ -1,13 +1,11 @@
 # Private Notes for `Github Inventory` Project
+
 ## Kanban
+
 **backlog**
 - [x] create readme; note prerequisite of installed github cli + authenticated session
 
-
 **in progress**
-
-
-
 
 **completed**
 - [x] use Claude Code CLI with Github MCP to create inventory; repo name, url
@@ -22,13 +20,14 @@
 - [x] change repo size KB -> MB in report
 - [x] add test for --limit (apply to both owned and starred)
 
-
 ---
+
 ## Developer Notes
+
 ### Objectives & Deliverables
 
-
 ### PRD
+
 - create csv files with detailed information for owned and starred repos
 - assemble the csv information into a report in .md format
 
@@ -38,8 +37,8 @@
 - no .python-version file -> pyproject.toml
 - ruff, black, pytest, mypy for code quality -> pyproject.toml [dev dependencies]
 
-
 ## my `.env` file
+
 ```python
 # GitHub Inventory Configuration
 # Default configuration values
@@ -56,5 +55,3 @@ REPORT_OUTPUT_MD=docs/output/GITHUB_REPORT.md
 # GITHUB_TOKEN=your_personal_access_token
 
 ```
-
-

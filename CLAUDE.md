@@ -20,6 +20,7 @@ GitHub Inventory is a CLI tool that uses the GitHub CLI (`gh`) to gather compreh
 ## Development Commands
 
 ### Setup
+
 ```bash
 uv venv
 source .venv/bin/activate  # or 'activate' shortcut
@@ -27,6 +28,7 @@ uv pip install -e ".[dev]"
 ```
 
 ### Code Quality
+
 ```bash
 # Format code
 black src/
@@ -39,6 +41,7 @@ pytest
 ```
 
 ### Running the Tool
+
 ```bash
 # Install as CLI command
 uv pip install -e .
@@ -72,11 +75,13 @@ gh-inventory --user hsb3 --owned-only --no-report
 ## Testing and Authentication
 
 The tool requires GitHub CLI authentication. Test with:
+
 ```bash
 gh auth status
 ```
 
 If authentication fails:
+
 ```bash
 gh auth login
 ```

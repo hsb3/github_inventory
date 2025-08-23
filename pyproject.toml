@@ -64,7 +64,11 @@ dev-dependencies = [
     "black>=22.0.0",
     "ruff>=0.1.0",
     "mypy>=1.0.0",
+    "pymarkdownlnt>=0.9.32",
 ]
+
+[tool.pymarkdownlnt]
+disable-rules = ["MD013"]  # Line length too restrictive for docs
 
 [tool.mypy]
 python_version = "3.12"

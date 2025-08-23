@@ -140,6 +140,7 @@ The tool generates three main outputs:
 ## Examples
 
 ### Complete Analysis
+
 ```bash
 # Full analysis with custom username
 gh-inventory --user octocat
@@ -152,6 +153,7 @@ gh-inventory --user sindresorhus --limit 100
 ```
 
 ### Report Generation
+
 ```bash
 # Generate fresh data and report
 gh-inventory --user hsb3
@@ -188,6 +190,7 @@ gh-inventory --report-only --user octocat
 ## Troubleshooting
 
 ### GitHub CLI Authentication Issues
+
 ```bash
 # Check if authenticated
 gh auth status
