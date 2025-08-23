@@ -47,7 +47,7 @@ jobs:
       
     - name: Test CLI installation
       run: |
-        uv run gh-inventory --help
+        uv run ghscan --help
 
   security:
     runs-on: ubuntu-latest
