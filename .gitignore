@@ -1,11 +1,9 @@
 # Generated files
-docs/output/*
-# *.csv
-# *.md
-# !README.md
-# !CLAUDE.md
-# !docs/*.md
+docs/*/
+!docs/output_example/
 
+# personal configuration
+myconfig.json
 
 
 # Python

@@ -10,6 +10,7 @@ A comprehensive GitHub repository inventory and analysis tool that uses the GitH
 - 🔧 **CLI Interface**: Easy-to-use command-line interface with flexible options
 - 💾 **CSV Export**: Exports data to CSV files for further analysis
 - 🎯 **Smart Filtering**: Options to collect only owned repos, starred repos, or both
+- 📦 **Batch Processing**: Process multiple GitHub accounts in a single run with configuration files
 
 ## Prerequisites
 
@@ -101,6 +102,12 @@ uv run gh-inventory --user hsb3 \
 
 # Skip markdown report generation
 uv run gh-inventory --user hsb3 --no-report
+
+# Batch processing with default accounts
+uv run gh-inventory --batch
+
+# Batch processing with custom configuration
+uv run gh-inventory --config my_accounts.json
 ```
 
 ### Output Files
@@ -124,6 +131,71 @@ The tool generates three main outputs:
    - Top languages breakdown
    - Formatted tables with your most active repositories
    - Your most starred repositories
+
+### Batch Processing
+
+For processing multiple GitHub accounts at once, you can use the batch processing feature.
+
+#### Default Configuration
+
+The tool includes default configurations for popular accounts:
+
+```bash
+# Process multiple accounts with default settings
+uv run gh-inventory --batch
+```
+
+Default accounts included:
+- `langchain-ai` (limited to 100 repos)
+- `aider-ai` (no limit)
+- `danny-avila` (no limit)
+- `coleam00` (no limit)
+- `dlt-hub` (no limit)
+
+#### Custom Configuration
+
+Create a JSON configuration file:
+
+```json
+{
+  "configs": [
+    {
+      "account": "facebook",
+      "limit": 50
+    },
+    {
+      "account": "google"
+    },
+    {
+      "account": "microsoft",
+      "limit": 100
+    }
+  ]
+}
+```
+
+Then run:
+
+```bash
+uv run gh-inventory --config my_accounts.json
+```
+
+#### Batch Output Structure
+
+Each account gets its own directory under `docs/`:
+
+```
+docs/
+├── langchain-ai/
+│   ├── repos.csv
+│   ├── starred_repos.csv
+│   └── README.md
+├── aider-ai/
+│   ├── repos.csv
+│   ├── starred_repos.csv
+│   └── README.md
+└── ...
+```
 
 ## Examples
 
@@ -151,6 +223,33 @@ uv run gh-inventory --report-only
 
 # Custom report with specific user
 uv run gh-inventory --report-only --user octocat
+```
+
+### Batch Processing Examples
+
+```bash
+# Quick analysis of default popular accounts
+uv run gh-inventory --batch
+
+# Custom batch configuration
+cat > my_config.json << EOF
+{
+  "configs": [
+    {
+      "account": "openai",
+      "limit": 25
+    },
+    {
+      "account": "anthropics",
+      "limit": 10
+    }
+  ]
+}
+EOF
+
+uv run gh-inventory --config my_config.json
+
+# Results will be in docs/openai/ and docs/anthropics/
 ```
 
 ## Troubleshooting
@@ -190,8 +289,10 @@ github-inventory/
 │   ├── __init__.py
 │   ├── cli.py          # Command-line interface
 │   ├── inventory.py    # Repository data collection
-│   └── report.py       # Markdown report generation
+│   ├── report.py       # Markdown report generation
+│   └── batch.py        # Batch processing functionality
 ├── main.py             # Entry point
 ├── pyproject.toml      # Project configuration
+├── config_example.json # Example batch configuration
 └── README.md           # This file
 ```

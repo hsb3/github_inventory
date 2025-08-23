@@ -3,7 +3,7 @@
 ## Kanban
 
 **backlog**
-- [x] create readme; note prerequisite of installed github cli + authenticated session
+- [ ] implement change order #1
 
 **in progress**
 
@@ -19,6 +19,7 @@
 - [x] add quickstart to readme
 - [x] change repo size KB -> MB in report
 - [x] add test for --limit (apply to both owned and starred)
+- [x] create readme; note prerequisite of installed github cli + authenticated session
 
 ---
 
@@ -27,7 +28,6 @@
 ### Objectives & Deliverables
 
 ### PRD
-
 - create csv files with detailed information for owned and starred repos
 - assemble the csv information into a report in .md format
 
@@ -37,8 +37,32 @@
 - no .python-version file -> pyproject.toml
 - ruff, black, pytest, mypy for code quality -> pyproject.toml [dev dependencies]
 
-## my `.env` file
+### change order - #1
 
+add functionality so that if i have a list of github accounts:
+
+class RunConfig(BaseModel):
+    account: str,
+    limit: Optional(int) = None
+
+class ConfigsToRun:
+    List[RunConfig]
+
+do this for:
+- langchain-ai, limit=100
+- aider-ai
+- danny-avila
+- coleam00
+- dlt-hub
+
+i can run report generator for all the accounts.
+output will be a folder in docs like 'docs/langchain-ai'
+with repos.csv, starred_repos.csv, README.md (the report)
+
+
+
+---
+## my `.env` file
 ```python
 # GitHub Inventory Configuration
 # Default configuration values
@@ -47,11 +71,10 @@
 GITHUB_USERNAME=hsb3
 
 # Default output file paths
-OWNED_REPOS_CSV=docs/output/repos.csv
-STARRED_REPOS_CSV=docs/output/starred_repos.csv
-REPORT_OUTPUT_MD=docs/output/GITHUB_REPORT.md
+OWNED_REPOS_CSV=docs/hsb3/repos.csv
+STARRED_REPOS_CSV=docs/hsb3/starred_repos.csv
+REPORT_OUTPUT_MD=docs/hs3/README.md
 
 # GitHub CLI settings (optional - uses system gh config by default)
 # GITHUB_TOKEN=your_personal_access_token
-
 ```

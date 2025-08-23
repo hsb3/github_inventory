@@ -16,6 +16,7 @@ from .inventory import (
     write_to_csv,
 )
 from .report import generate_markdown_report, read_csv_data
+from .batch import get_default_configs, load_config_from_file, run_batch_processing
 
 
 def create_parser():
@@ -25,9 +26,11 @@ def create_parser():
 
     # Get default values from environment or fallback values
     default_username = os.getenv("GITHUB_USERNAME", "hsb3")
-    default_owned_csv = os.getenv("OWNED_REPOS_CSV", "github_inventory_detailed.csv")
-    default_starred_csv = os.getenv("STARRED_REPOS_CSV", "starred_repos.csv")
-    default_report_md = os.getenv("REPORT_OUTPUT_MD", "github_inventory_report.md")
+    
+    # Default to docs/{username}/ structure for consistency with batch processing
+    default_owned_csv = os.getenv("OWNED_REPOS_CSV", f"docs/{default_username}/repos.csv")
+    default_starred_csv = os.getenv("STARRED_REPOS_CSV", f"docs/{default_username}/starred_repos.csv")
+    default_report_md = os.getenv("REPORT_OUTPUT_MD", f"docs/{default_username}/README.md")
 
     parser = argparse.ArgumentParser(
         description="GitHub Repository Inventory Tool",
@@ -48,6 +51,12 @@ Examples:
 
   # Custom output files
   gh-inventory --user hsb3 --owned-csv my_repos.csv --starred-csv my_stars.csv
+
+  # Batch processing with default accounts
+  gh-inventory --batch
+
+  # Batch processing with custom config file
+  gh-inventory --config myconfig.json
         """,
     )
 
@@ -101,6 +110,18 @@ Examples:
     )
 
     parser.add_argument("--version", action="version", version="github-inventory 0.1.0")
+
+    # Batch processing arguments
+    parser.add_argument(
+        "--batch",
+        action="store_true",
+        help="Run batch processing with default account configurations"
+    )
+
+    parser.add_argument(
+        "--config",
+        help="Run batch processing with custom configuration file (JSON/YAML)"
+    )
 
     return parser
 
@@ -174,8 +195,37 @@ def main():
     print("GitHub Repository Inventory Tool")
     print("=" * 50)
 
+    # Handle batch processing mode
+    if args.batch or args.config:
+        if args.batch and args.config:
+            print("Error: Cannot use --batch and --config together")
+            sys.exit(1)
+        
+        if args.batch:
+            print("Running batch processing with default configurations...")
+            configs = get_default_configs()
+        else:
+            print(f"Running batch processing with config file: {args.config}")
+            configs = load_config_from_file(args.config)
+        
+        run_batch_processing(configs)
+        return
+
     owned_repos = []
     starred_repos = []
+
+    # Update paths to use the current username (always use docs/{username}/ structure)
+    default_username = os.getenv("GITHUB_USERNAME", "hsb3")
+    if args.owned_csv == f"docs/{default_username}/repos.csv" or args.owned_csv.endswith("github_inventory_detailed.csv"):
+        args.owned_csv = f"docs/{args.user}/repos.csv"
+    if args.starred_csv == f"docs/{default_username}/starred_repos.csv" or args.starred_csv.endswith("starred_repos.csv"):
+        args.starred_csv = f"docs/{args.user}/starred_repos.csv"  
+    if args.report_md == f"docs/{default_username}/README.md" or args.report_md.endswith("github_inventory_report.md"):
+        args.report_md = f"docs/{args.user}/README.md"
+
+    # Ensure output directory exists
+    output_dir = os.path.dirname(args.owned_csv) or "."
+    os.makedirs(output_dir, exist_ok=True)
 
     # Handle report-only mode
     if args.report_only:

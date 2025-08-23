@@ -1,0 +1,15 @@
+{
+  "configs": [
+    {
+      "account": "langchain-ai",
+      "limit": 10
+    },
+    {
+      "account": "aider-ai"
+    },
+    {
+      "account": "danny-avila",
+      "limit": 25
+    }
+  ]
+}
