@@ -47,10 +47,10 @@ pytest
 uv pip install -e .
 
 # Basic usage
-gh-inventory --user <username>
+ghscan --user <username>
 
 # Common development test
-gh-inventory --user hsb3 --owned-only --no-report
+ghscan --user hsb3 --owned-only --no-report
 ```
 
 ## Key Implementation Details
@@ -68,7 +68,7 @@ gh-inventory --user hsb3 --owned-only --no-report
 4. Data formatted and written to CSV via `write_to_csv()`
 
 **CLI Entry Points:**
-- Package defines `gh-inventory` script that calls `github_inventory.cli:main`
+- Package defines `ghscan` script that calls `github_inventory.cli:main`
 - CLI supports modes: full collection, owned-only, starred-only, report-only
 - Default username is "hsb3" but can be overridden with `--user` flag
 

@@ -44,25 +44,25 @@ def create_parser():
         epilog="""
 Examples:
   # Generate full inventory and report
-  gh-inventory --user hsb3
+  ghscan --user hsb3
 
   # Generate only owned repositories
-  gh-inventory --user hsb3 --owned-only
+  ghscan --user hsb3 --owned-only
 
   # Generate only starred repositories
-  gh-inventory --user hsb3 --starred-only
+  ghscan --user hsb3 --starred-only
 
   # Generate markdown report from existing CSV files
-  gh-inventory --report-only
+  ghscan --report-only
 
   # Custom output files
-  gh-inventory --user hsb3 --owned-csv my_repos.csv --starred-csv my_stars.csv
+  ghscan --user hsb3 --owned-csv my_repos.csv --starred-csv my_stars.csv
 
   # Batch processing with default accounts
-  gh-inventory --batch
+  ghscan --batch
 
   # Batch processing with custom config file (YAML recommended)
-  gh-inventory --config myconfig.yaml
+  ghscan --config myconfig.yaml
         """,
     )
 

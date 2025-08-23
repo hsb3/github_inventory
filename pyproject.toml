@@ -31,7 +31,7 @@ Homepage = "https://github.com/hsb3/github_inventory"
 Repository = "https://github.com/hsb3/github_inventory"
 
 [project.scripts]
-gh-inventory = "github_inventory.cli:main"
+ghscan = "github_inventory.cli:main"
 
 [project.optional-dependencies]
 dev = [
