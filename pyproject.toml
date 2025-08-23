@@ -1,5 +1,5 @@
 [project]
-name = "github-inventory"
+name = "github_inventory"
 version = "0.1.0"
 description = "A comprehensive GitHub repository inventory and analysis tool"
 readme = "README.md"
@@ -26,8 +26,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/hsb3/github-inventory"
-Repository = "https://github.com/hsb3/github-inventory"
+Homepage = "https://github.com/hsb3/github_inventory"
+Repository = "https://github.com/hsb3/github_inventory"
 
 [project.scripts]
 gh-inventory = "github_inventory.cli:main"

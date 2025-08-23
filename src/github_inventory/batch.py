@@ -86,11 +86,11 @@ def process_single_account(config: RunConfig, base_dir: str = "docs") -> bool:
     account = config.account
     limit = config.limit
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Processing account: {account}")
     if limit:
         print(f"Repository limit: {limit}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     # Create output directory
     output_dir = create_output_directory(account, base_dir)
@@ -212,9 +212,9 @@ def run_batch_processing(configs: ConfigsToRun, base_dir: str = "docs") -> None:
             failed += 1
 
     # Print final summary
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("BATCH PROCESSING SUMMARY")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"✅ Successful accounts: {successful}")
     print(f"❌ Failed accounts: {failed}")
     print(f"📁 Total accounts processed: {len(configs.configs)}")

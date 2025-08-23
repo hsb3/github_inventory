@@ -160,4 +160,4 @@ class TestCLIIntegration:
             parser.parse_args(["--version"])
 
         captured = capsys.readouterr()
-        assert "github-inventory 0.1.0" in captured.out
+        assert "github_inventory 0.1.0" in captured.out

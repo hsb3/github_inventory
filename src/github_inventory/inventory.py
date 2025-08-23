@@ -6,6 +6,7 @@ Uses GitHub CLI to gather comprehensive repository information
 
 import csv
 import json
+import shlex
 import subprocess
 from datetime import datetime
 
@@ -13,8 +14,10 @@ from datetime import datetime
 def run_gh_command(cmd):
     """Run a GitHub CLI command and return the result"""
     try:
-        result = subprocess.run(
-            cmd, shell=True, capture_output=True, text=True, check=True
+        # Use shlex.split() for security instead of shell=True
+        cmd_args = shlex.split(cmd) if isinstance(cmd, str) else cmd
+        result = subprocess.run(  # noqa: S603
+            cmd_args, capture_output=True, text=True, check=True
         )
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:

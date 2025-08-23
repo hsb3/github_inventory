@@ -197,7 +197,7 @@ def create_summary_section(username="hsb3"):
     summary = "# GitHub Repository Inventory Report\n\n"
     summary += f"**Generated:** {current_date}  \n"
     summary += f"**Account:** @{username}  \n"
-    summary += "**Tool:** [GitHub Inventory](https://github.com/hsb3/github-inventory) via GitHub CLI\n\n"
+    summary += "**Tool:** [GitHub Inventory](https://github.com/hsb3/github_inventory) via GitHub CLI\n\n"
 
     summary += "## Overview\n\n"
     summary += "This automated report provides a comprehensive analysis of GitHub repositories and starred projects. "

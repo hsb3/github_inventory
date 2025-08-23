@@ -115,7 +115,7 @@ Examples:
         help="Limit number of repositories to process (useful for large accounts)",
     )
 
-    parser.add_argument("--version", action="version", version="github-inventory 0.1.0")
+    parser.add_argument("--version", action="version", version="github_inventory 0.1.0")
 
     # Batch processing arguments
     parser.add_argument(
@@ -134,9 +134,9 @@ Examples:
 
 def print_summary(owned_repos, starred_repos):
     """Print summary statistics"""
-    print(f"\n{'='*50}")
+    print(f"\n{'=' * 50}")
     print("SUMMARY")
-    print(f"{'='*50}")
+    print(f"{'=' * 50}")
 
     if owned_repos:
         print(f"📁 Your repositories: {len(owned_repos)}")
