@@ -626,14 +626,14 @@ class TestPydanticModels:
         assert len(default_configs.configs) == 3
 
         # Check specific default values
-        assert default_configs.configs[0].account == "langchain-ai"
-        assert default_configs.configs[0].limit == 100
+        assert default_configs.configs[0].account == "microsoft"
+        assert default_configs.configs[0].limit == 50
 
-        assert default_configs.configs[1].account == "aider-ai"
-        assert default_configs.configs[1].limit is None
+        assert default_configs.configs[1].account == "google"
+        assert default_configs.configs[1].limit == 50
 
-        assert default_configs.configs[2].account == "dlt-hub"
-        assert default_configs.configs[2].limit is None
+        assert default_configs.configs[2].account == "facebook"
+        assert default_configs.configs[2].limit == 50
 
 
 @pytest.mark.parametrize("file_extension", [".yaml", ".yml", ".json"])
