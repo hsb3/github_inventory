@@ -19,6 +19,8 @@ CLI tool for generating comprehensive GitHub repository inventories and reports
 • **CSV Export** - Export data for further analysis in spreadsheet tools  
 • **Rate Limit Friendly** - Built-in limits for large accounts to avoid GitHub API limits
 
+📊 **[View Example Report](docs/output_example/README.md)** - See what the generated report looks like
+
 ## Quick Start
 
 ```bash
