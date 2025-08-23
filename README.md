@@ -32,26 +32,6 @@ uv run ghscan --user octocat
 
 Requires [GitHub CLI](https://cli.github.com/) authenticated with `gh auth login`
 
-## Global Installation
-
-For a globally available `ghscan` command:
-
-```bash
-# Install globally
-cd github_inventory
-uv tool install .
-
-# Now use from anywhere
-ghscan --user octocat
-
-# Uninstall if needed
-uv tool uninstall github-inventory
-```
-
-**Output locations:**
-- Development (`uv run ghscan`): saves to `./docs/username/`
-- Global (`ghscan`): saves to `~/.ghscan/username/`
-
 ## Basic Usage
 
 ```bash
