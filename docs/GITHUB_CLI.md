@@ -1,4 +1,6 @@
 # Github CLI Help Menu
+
+```
 Work seamlessly with GitHub from the command line.
 
 USAGE
@@ -67,4 +69,4 @@ LEARN MORE
   Read the manual at https://cli.github.com/manual
   Learn about exit codes using `gh help exit-codes`
   Learn about accessibility experiences using `gh help accessibility`
-
+```
