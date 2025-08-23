@@ -27,15 +27,25 @@ def create_parser():
     # Get default values from environment or fallback values
     default_username = os.getenv("GITHUB_USERNAME", "hsb3")
 
-    # Default to docs/{username}/ structure for consistency with batch processing
+    # Determine output directory based on installation type
+    # Use ~/.ghscan for global installs, ./docs for development
+    if os.path.exists("pyproject.toml") and os.path.exists("src/github_inventory"):
+        # Development mode - use relative paths
+        output_base = "docs"
+    else:
+        # Global install - use home directory
+        output_base = os.path.expanduser("~/.ghscan")
+        os.makedirs(output_base, exist_ok=True)
+
+    # Default output paths
     default_owned_csv = os.getenv(
-        "OWNED_REPOS_CSV", f"docs/{default_username}/repos.csv"
+        "OWNED_REPOS_CSV", f"{output_base}/{default_username}/repos.csv"
     )
     default_starred_csv = os.getenv(
-        "STARRED_REPOS_CSV", f"docs/{default_username}/starred_repos.csv"
+        "STARRED_REPOS_CSV", f"{output_base}/{default_username}/starred_repos.csv"
     )
     default_report_md = os.getenv(
-        "REPORT_OUTPUT_MD", f"docs/{default_username}/README.md"
+        "REPORT_OUTPUT_MD", f"{output_base}/{default_username}/README.md"
     )
 
     parser = argparse.ArgumentParser(
