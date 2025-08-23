@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 from typing import List, Optional
 
+import yaml
 from pydantic import BaseModel, ValidationError
 
 from .inventory import (
@@ -44,33 +45,79 @@ def get_default_configs() -> ConfigsToRun:
 
 
 def load_config_from_file(config_file: str) -> ConfigsToRun:
-    """Load configuration from JSON or YAML file"""
+    """Load configuration from JSON or YAML file
+
+    Args:
+        config_file: Path to configuration file (.json, .yml, or .yaml)
+
+    Returns:
+        ConfigsToRun: Parsed configuration object
+
+    Raises:
+        FileNotFoundError: If the configuration file doesn't exist
+        ValueError: If file format is unsupported or content is invalid
+        SystemExit: If validation fails or critical error occurs
+    """
     config_path = Path(config_file)
 
     if not config_path.exists():
         raise FileNotFoundError(f"Configuration file not found: {config_file}")
 
+    # Determine file format based on extension
+    file_extension = config_path.suffix.lower()
+    supported_extensions = {".json", ".yml", ".yaml"}
+
+    if file_extension not in supported_extensions:
+        supported_list = ", ".join(sorted(supported_extensions))
+        raise ValueError(
+            f"Unsupported file format '{file_extension}'. "
+            f"Supported formats: {supported_list}"
+        )
+
     try:
         with open(config_path, "r", encoding="utf-8") as f:
-            if config_path.suffix.lower() in [".yml", ".yaml"]:
+            if file_extension in [".yml", ".yaml"]:
                 try:
-                    import yaml
-
                     data = yaml.safe_load(f)
-                except ImportError as err:
-                    raise ImportError(
-                        "PyYAML is required to read YAML config files. Install with: uv add pyyaml"
-                    ) from err
+                except yaml.YAMLError as e:
+                    raise ValueError(
+                        f"Invalid YAML format in {config_file}: {e}"
+                    ) from e
+
+                # Handle empty YAML files
+                if data is None:
+                    raise ValueError(f"Empty or invalid YAML file: {config_file}")
+
+            elif file_extension == ".json":
+                try:
+                    data = json.load(f)
+                except json.JSONDecodeError as e:
+                    raise ValueError(
+                        f"Invalid JSON format in {config_file}: {e}"
+                    ) from e
             else:
-                data = json.load(f)
+                # This shouldn't happen due to extension check above, but be safe
+                raise ValueError(f"Unsupported file extension: {file_extension}")
+
+        # Validate the loaded data structure
+        if not isinstance(data, dict):
+            raise ValueError(
+                f"Configuration file must contain a JSON/YAML object, got {type(data).__name__}"
+            )
 
         return ConfigsToRun(**data)
 
     except ValidationError as e:
-        print(f"Configuration validation error: {e}")
+        print(f"Configuration validation error in {config_file}:")
+        print(f"  {e}")
+        print("\nExpected structure:")
+        print('  {"configs": [{"account": "username", "limit": 100}, ...]}')
+        sys.exit(1)
+    except (ValueError, FileNotFoundError) as e:
+        print(f"Error loading configuration file: {e}")
         sys.exit(1)
     except Exception as e:
-        print(f"Error loading configuration file: {e}")
+        print(f"Unexpected error loading configuration file {config_file}: {e}")
         sys.exit(1)
 
 

@@ -61,8 +61,8 @@ Examples:
   # Batch processing with default accounts
   gh-inventory --batch
 
-  # Batch processing with custom config file
-  gh-inventory --config myconfig.json
+  # Batch processing with custom config file (YAML recommended)
+  gh-inventory --config myconfig.yaml
         """,
     )
 

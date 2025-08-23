@@ -128,7 +128,7 @@ make check
 uv run gh-inventory --user octocat --limit 10
 
 # Test batch processing
-uv run gh-inventory --batch config_example.json
+uv run gh-inventory --batch config_example.yaml
 
 # Test error handling
 uv run gh-inventory --user nonexistent-user-12345

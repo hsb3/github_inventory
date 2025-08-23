@@ -95,8 +95,32 @@ gh-inventory --user hsb3 --no-report
 
 ### Batch processing multiple users:
 ```bash
-gh-inventory --batch config_example.json
+gh-inventory --batch config_example.yaml
 ```
+
+Configuration files can be written in YAML (recommended) or JSON format. YAML files support comments and are more readable:
+
+**YAML format (recommended):**
+```yaml
+# GitHub Inventory Batch Configuration
+configs:
+  - account: langchain-ai
+    limit: 10
+  - account: aider-ai
+    # No limit - will process all repositories
+```
+
+**JSON format (backward compatibility):**
+```json
+{
+  "configs": [
+    {"account": "langchain-ai", "limit": 10},
+    {"account": "aider-ai"}
+  ]
+}
+```
+
+JSON configuration files are still supported for backward compatibility.
 
 ## Notes
 - All timestamps are in the format: YYYY-MM-DD
