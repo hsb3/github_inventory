@@ -3,9 +3,15 @@
 ## Kanban
 
 **backlog**
-- [ ] implement change order #1
+- [ ] fix test_cli.py for code base change
+
+
 
 **in progress**
+- [ ] add PR and Issue template
+- [ ] add basic github workflows to prevent destructive changes to main branch
+- [ ] add pull request and issue submission instructions in docs/
+- [ ] add readme to docs/ with explanation of contents of docs/ --- exclude hidden folders
 
 **completed**
 - [x] use Claude Code CLI with Github MCP to create inventory; repo name, url
@@ -20,7 +26,7 @@
 - [x] change repo size KB -> MB in report
 - [x] add test for --limit (apply to both owned and starred)
 - [x] create readme; note prerequisite of installed github cli + authenticated session
-
+- [x] implement change order #1
 ---
 
 ## Developer Notes

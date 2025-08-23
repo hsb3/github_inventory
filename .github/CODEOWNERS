@@ -1,0 +1,13 @@
+# Global code owners
+* @hsb3
+
+# Core source code
+src/ @hsb3
+
+# CI/CD and workflows
+.github/ @hsb3
+
+# Configuration files
+pyproject.toml @hsb3
+.env.example @hsb3
+Makefile @hsb3
