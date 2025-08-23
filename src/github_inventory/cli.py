@@ -151,7 +151,7 @@ def print_summary(owned_repos, starred_repos):
         print(f"   - Original: {original_count} | Forks: {fork_count}")
 
         # Language breakdown
-        languages = {}
+        languages: dict[str, int] = {}
         for repo in owned_repos:
             lang = repo.get("primary_language", "")
             if lang:
@@ -179,14 +179,14 @@ def print_summary(owned_repos, starred_repos):
         )
 
         # Language breakdown
-        languages = {}
+        starred_languages: dict[str, int] = {}
         for repo in starred_repos:
             lang = repo.get("primary_language", "")
             if lang:
-                languages[lang] = languages.get(lang, 0) + 1
+                starred_languages[lang] = starred_languages.get(lang, 0) + 1
 
-        if languages:
-            top_languages = sorted(languages.items(), key=lambda x: x[1], reverse=True)[
+        if starred_languages:
+            top_languages = sorted(starred_languages.items(), key=lambda x: x[1], reverse=True)[
                 :3
             ]
             lang_str = " | ".join([f"{lang}: {count}" for lang, count in top_languages])

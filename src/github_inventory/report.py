@@ -79,7 +79,7 @@ def create_owned_repos_table(repos_data, limit_applied=None):
     table += f"- **Original:** {original_count} | **Forks:** {fork_count}\n\n"
 
     # Language breakdown
-    languages = {}
+    languages: dict[str, int] = {}
     for repo in repos_data:
         lang = repo.get("primary_language", "")
         if lang:
@@ -144,7 +144,7 @@ def create_starred_repos_table(starred_data, limit_applied=None):
     table += f"- **Public:** {public_count} | **Private:** {private_count} | **Archived:** {archived_count}\n\n"
 
     # Language breakdown
-    languages = {}
+    languages: dict[str, int] = {}
     for repo in starred_data:
         lang = repo.get("primary_language", "")
         if lang:
