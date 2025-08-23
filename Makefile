@@ -24,7 +24,7 @@ example:  ## Run example with sindresorhus (50 repos)
 	uv run gh-inventory --user sindresorhus --limit 50 \
 		--owned-csv docs/output_example/repos.csv \
 		--starred-csv docs/output_example/starred_repos.csv \
-		--report-md docs/output_example/GITHUB_REPORT.md
+		--report-md docs/output_example/README.md
 
 dev:  ## Run development checks (format, lint, test)
 	uv run ruff check --fix src/ tests/
