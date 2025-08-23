@@ -102,8 +102,4 @@ This automated report provides a comprehensive analysis of GitHub repositories a
 
 *Showing 25 most starred repositories out of 30 total.*
 
----
-
-
----
-*Generated using GitHub CLI and Python*
+> *Generated using GitHub CLI and Python*

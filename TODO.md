@@ -4,11 +4,6 @@
 
 ### **backlog**
 
-- [ ] fix test_cli.py for code base change
-- [ ] add configurable limits for reports (owned & starred)
-- [ ] move CONTRIBUTING.md to root?
-- [ ] determine what value of config file name and extension is looked for.  how handle when there is both a yaml and json
-
 ### **in progress**
 
 ### **completed**
@@ -30,12 +25,14 @@
 - [x] add basic github workflows to prevent destructive changes to main branch
 - [x] add pull request and issue submission instructions in docs/
 - [x] add readme to docs/ with explanation of contents of docs/ --- exclude hidden folders
+- [x] fix test_cli.py for code base change
+- [x] add configurable limits for reports (owned & starred)
+- [x] move CONTRIBUTING.md to root?
+- [x] determine what value of config file name and extension is looked for.  how handle when there is both a yaml and json
 
 ---
 
 ## Developer Notes
-
-### Objectives & Deliverables
 
 ### PRD
 
@@ -60,7 +57,8 @@ class RunConfig(BaseModel):
 class ConfigsToRun:
     List[RunConfig]
 
-do this for:
+*do this for:*
+
 - langchain-ai, limit=100
 - aider-ai
 - danny-avila
@@ -71,10 +69,8 @@ i can run report generator for all the accounts.
 output will be a folder in docs like 'docs/langchain-ai'
 with repos.csv, starred_repos.csv, README.md (the report)
 
+### my `.env` file
 
-
----
-## my `.env` file
 ```python
 # GitHub Inventory Configuration
 # Default configuration values

@@ -89,6 +89,7 @@ Copy `.env.example` to `.env` and customize as needed. Environment variables ove
 ## Output
 
 Creates three files in `docs/username/`:
+
 - `repos.csv` - Owned repository data
 - `starred_repos.csv` - Starred repository data  
 - `README.md` - Professional report with statistics and tables

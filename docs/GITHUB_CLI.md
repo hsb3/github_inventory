@@ -1,6 +1,6 @@
 # Github CLI Help Menu
 
-```
+```markdown
 Work seamlessly with GitHub from the command line.
 
 USAGE

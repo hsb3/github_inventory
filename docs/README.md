@@ -5,23 +5,28 @@ This directory contains documentation and example outputs for the GitHub Invento
 ## Contents
 
 ### Documentation Files
+
 - **[CONTRIBUTING.md](../CONTRIBUTING.md)** - Guidelines for submitting issues and pull requests
 - **[GITHUB_CLI.md](GITHUB_CLI.md)** - GitHub CLI setup and authentication guide
 
 ### Example Output
+
 - **[output_example/](output_example/)** - Sample output files demonstrating the tool's functionality
   - `README.md` - Generated report for sindresorhus (limited to 50 repos)
   - `repos.csv` - Repository data in CSV format
   - `starred_repos.csv` - Starred repositories data
 
 ### Generated User Data
+
 The tool automatically creates user-specific directories when run:
+
 - **`{username}/`** - Generated data for each analyzed GitHub user
   - `README.md` - Comprehensive inventory report
   - `repos.csv` - Owned repositories data
   - `starred_repos.csv` - Starred repositories data
 
 #### Current User Data Directories
+
 - **aider-ai/** - Analysis of aider-ai GitHub account
 - **coleam00/** - Analysis of coleam00 GitHub account  
 - **danny-avila/** - Analysis of danny-avila GitHub account
@@ -31,8 +36,10 @@ The tool automatically creates user-specific directories when run:
 - **testuser/** - Test user data directory
 
 ## File Structure
+
 Each user directory follows this structure:
-```
+
+```markdown
 docs/{username}/
 ├── README.md           # Main inventory report
 ├── repos.csv          # Owned repositories (CSV)
@@ -40,7 +47,9 @@ docs/{username}/
 ```
 
 ## Generated Report Format
+
 The `README.md` files contain:
+
 - **Overview** - Account summary and methodology
 - **Owned Repositories** - Table of repositories owned by the user
 - **Starred Repositories** - Table of repositories starred by the user
@@ -49,6 +58,7 @@ The `README.md` files contain:
 ## CSV Data Format
 
 ### repos.csv columns:
+
 - `name` - Repository name
 - `description` - Repository description
 - `url` - GitHub URL
@@ -62,6 +72,7 @@ The `README.md` files contain:
 - `size` - Repository size in KB
 
 ### starred_repos.csv columns:
+
 - `name` - Repository name
 - `full_name` - Owner/repository format
 - `description` - Repository description
@@ -78,22 +89,27 @@ The `README.md` files contain:
 ## Usage Examples
 
 ### Analyze a specific user:
+
 ```bash
 gh-inventory --user octocat
 ```
+
 Creates: `docs/octocat/README.md`, `docs/octocat/repos.csv`, `docs/octocat/starred_repos.csv`
 
 ### Limit results for large accounts:
+
 ```bash
 gh-inventory --user sindresorhus --limit 50
 ```
 
 ### Generate only CSV data:
+
 ```bash
 gh-inventory --user hsb3 --no-report
 ```
 
 ### Batch processing multiple users:
+
 ```bash
 gh-inventory --batch config_example.yaml
 ```
@@ -101,6 +117,7 @@ gh-inventory --batch config_example.yaml
 Configuration files can be written in YAML (recommended) or JSON format. YAML files support comments and are more readable:
 
 **YAML format (recommended):**
+
 ```yaml
 # GitHub Inventory Batch Configuration
 configs:
@@ -111,6 +128,7 @@ configs:
 ```
 
 **JSON format (backward compatibility):**
+
 ```json
 {
   "configs": [
@@ -123,10 +141,12 @@ configs:
 JSON configuration files are still supported for backward compatibility.
 
 ## Notes
+
 - All timestamps are in the format: YYYY-MM-DD
 - Repository sizes are converted from KB to MB in reports (but stored as KB in CSV)
 - Private repositories require proper GitHub CLI authentication
 - Generated files are excluded from git tracking (see `.gitignore`)
 
 ## Contributing
+
 See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on submitting issues and pull requests.
