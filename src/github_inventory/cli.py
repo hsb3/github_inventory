@@ -6,6 +6,8 @@ Command-line interface for GitHub repository inventory tool
 
 import argparse
 import os
+import platform
+import subprocess
 import sys
 
 from dotenv import load_dotenv
@@ -19,6 +21,40 @@ from .inventory import (
 from .report import generate_markdown_report, read_csv_data
 
 
+def get_output_base():
+    """Determine output directory based on installation type"""
+    if os.path.exists("pyproject.toml") and os.path.exists("src/github_inventory"):
+        # Development mode - use relative paths
+        return "docs"
+    else:
+        # Global install - use home directory
+        output_base = os.path.expanduser("~/.ghscan")
+        os.makedirs(output_base, exist_ok=True)
+        return output_base
+
+
+def open_directory(directory_path):
+    """Open directory in the default file manager"""
+    abs_path = os.path.abspath(directory_path)
+
+    if not os.path.exists(abs_path):
+        os.makedirs(abs_path, exist_ok=True)
+
+    system = platform.system()
+    try:
+        if system == "Darwin":  # macOS
+            subprocess.run(["open", abs_path], check=True)  # noqa: S603, S607
+        elif system == "Windows":
+            subprocess.run(["explorer", abs_path], check=True)  # noqa: S603, S607
+        else:  # Linux and others
+            subprocess.run(["xdg-open", abs_path], check=True)  # noqa: S603, S607
+        print(f"📂 Opened {abs_path}")
+    except subprocess.CalledProcessError:
+        print(f"❌ Could not open directory. Path: {abs_path}")
+    except FileNotFoundError:
+        print(f"❌ Could not find file manager to open directory. Path: {abs_path}")
+
+
 def create_parser():
     """Create the argument parser"""
     # Load environment variables
@@ -27,42 +63,50 @@ def create_parser():
     # Get default values from environment or fallback values
     default_username = os.getenv("GITHUB_USERNAME", "hsb3")
 
-    # Default to docs/{username}/ structure for consistency with batch processing
+    # Determine output directory
+    output_base = get_output_base()
+
+    # Default output paths
     default_owned_csv = os.getenv(
-        "OWNED_REPOS_CSV", f"docs/{default_username}/repos.csv"
+        "OWNED_REPOS_CSV", f"{output_base}/{default_username}/repos.csv"
     )
     default_starred_csv = os.getenv(
-        "STARRED_REPOS_CSV", f"docs/{default_username}/starred_repos.csv"
+        "STARRED_REPOS_CSV", f"{output_base}/{default_username}/starred_repos.csv"
     )
     default_report_md = os.getenv(
-        "REPORT_OUTPUT_MD", f"docs/{default_username}/README.md"
+        "REPORT_OUTPUT_MD", f"{output_base}/{default_username}/README.md"
     )
 
     parser = argparse.ArgumentParser(
         description="GitHub Repository Inventory Tool",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
+        epilog=f"""
+Output Location: {output_base}/
+
 Examples:
   # Generate full inventory and report
-  gh-inventory --user hsb3
+  ghscan --user hsb3
 
   # Generate only owned repositories
-  gh-inventory --user hsb3 --owned-only
+  ghscan --user hsb3 --owned-only
 
   # Generate only starred repositories
-  gh-inventory --user hsb3 --starred-only
+  ghscan --user hsb3 --starred-only
 
   # Generate markdown report from existing CSV files
-  gh-inventory --report-only
+  ghscan --report-only
+
+  # Open the output directory
+  ghscan --open
 
   # Custom output files
-  gh-inventory --user hsb3 --owned-csv my_repos.csv --starred-csv my_stars.csv
+  ghscan --user hsb3 --owned-csv my_repos.csv --starred-csv my_stars.csv
 
   # Batch processing with default accounts
-  gh-inventory --batch
+  ghscan --batch
 
   # Batch processing with custom config file (YAML recommended)
-  gh-inventory --config myconfig.yaml
+  ghscan --config myconfig.yaml
         """,
     )
 
@@ -116,6 +160,12 @@ Examples:
     )
 
     parser.add_argument("--version", action="version", version="github_inventory 0.1.0")
+
+    parser.add_argument(
+        "--open",
+        action="store_true",
+        help=f"Open the output directory ({output_base}) in your default file manager",
+    )
 
     # Batch processing arguments
     parser.add_argument(
@@ -197,6 +247,12 @@ def main():
     """Main CLI function"""
     parser = create_parser()
     args = parser.parse_args()
+
+    # Handle --open command
+    if args.open:
+        output_base = get_output_base()
+        open_directory(output_base)
+        return
 
     print("GitHub Repository Inventory Tool")
     print("=" * 50)

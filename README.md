@@ -24,15 +24,10 @@ CLI tool for generating comprehensive GitHub repository inventories and reports
 ## Quick Start
 
 ```bash
-# Install
+# Clone and run
 git clone https://github.com/hsb3/github_inventory.git
 cd github_inventory && uv sync
-
-# Generate report for any GitHub user
-uv run gh-inventory --user octocat
-
-# Try the demo with sample data
-make example
+uv run ghscan --user octocat
 ```
 
 Requires [GitHub CLI](https://cli.github.com/) authenticated with `gh auth login`
@@ -41,16 +36,16 @@ Requires [GitHub CLI](https://cli.github.com/) authenticated with `gh auth login
 
 ```bash
 # Full analysis (owned + starred repos)
-uv run gh-inventory --user username
+uv run ghscan --user username
 
 # Just your repositories
-uv run gh-inventory --user username --owned-only
+uv run ghscan --user username --owned-only
 
 # Limit results for large accounts  
-uv run gh-inventory --user sindresorhus --limit 50
+uv run ghscan --user sindresorhus --limit 50
 
 # Batch process multiple accounts
-uv run gh-inventory --batch
+uv run ghscan --batch
 ```
 
 ## Output

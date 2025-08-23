@@ -43,6 +43,5 @@ quality:  ## Run quality checks without fixes
 	uv run pytest tests/ -v
 
 clean:  ## Clean cache and output files
-	rm -rf .pytest_cache/ .ruff_cache/ build/ dist/ *.egg-info/
-	rm -f *.csv *.md docs/output_example/*.csv docs/output_example/*.md
+	rm -rf .pytest_cache/ .ruff_cache/ build/ dist/ *.egg-info/ .mypy_cache/
 	find . -type d -name __pycache__ -exec rm -rf {} +
