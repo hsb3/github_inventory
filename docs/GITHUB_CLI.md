@@ -1,3 +1,4 @@
+# Github CLI Help Menu
 Work seamlessly with GitHub from the command line.
 
 USAGE
