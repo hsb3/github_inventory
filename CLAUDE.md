@@ -10,11 +10,15 @@ GitHub Inventory is a CLI tool that uses the GitHub CLI (`gh`) to gather compreh
 - `src/github_inventory/cli.py` - Command-line interface and argument parsing
 - `src/github_inventory/inventory.py` - Repository data collection using GitHub CLI subprocess calls
 - `src/github_inventory/report.py` - Markdown report generation and CSV data reading
-- `main.py` - Entry point that imports from cli module
+- `src/github_inventory/batch.py` - Batch processing with JSON/YAML configuration support
+- Main entry point: `ghscan` script in pyproject.toml calls `github_inventory.cli:main`
 
 **Key Dependencies:**
 - Requires GitHub CLI (`gh`) installed and authenticated
 - Uses `pandas>=1.3.0` for data processing
+- Uses `pydantic>=2.0.0` for configuration validation
+- Uses `pyyaml>=6.0.0` for YAML config file support
+- Uses `pre-commit>=3.0.0` for automated code quality hooks
 - Uses Python `subprocess` module to execute `gh` commands
 
 ## Development Commands
@@ -22,22 +26,53 @@ GitHub Inventory is a CLI tool that uses the GitHub CLI (`gh`) to gather compreh
 ### Setup
 
 ```bash
-uv venv
-source .venv/bin/activate  # or 'activate' shortcut
-uv pip install -e ".[dev]"
+make setup    # Recommended: sets up venv, installs deps, configures pre-commit
+# OR manually:
+uv venv --python 3.12
+uv sync --all-extras
 ```
 
 ### Code Quality
 
 ```bash
 # Format code
-black src/
+make format   # Uses ruff format + black
 
 # Lint code
-ruff src/
+make lint     # Uses ruff check
 
-# Run tests (when available)
-pytest
+# Type checking
+make typecheck # Uses mypy
+
+# Install pre-commit hooks
+make hooks
+```
+
+### Makefile Commands (Recommended)
+
+```bash
+make          # Show help menu with available commands
+make setup    # Complete setup: install deps, hooks, run tests
+make install  # Install dependencies only
+make hooks    # Install and run pre-commit hooks
+make format   # Format code with ruff + black
+make lint     # Lint code with ruff
+make typecheck # Type check with mypy
+make test     # Run tests
+make clean    # Clean cache and build files (including .venv)
+```
+
+### Testing
+
+```bash
+# Run all tests
+pytest tests/ -v
+
+# Run specific test file
+PYTHONPATH=src python -m pytest tests/test_report.py -v
+
+# Test quick command
+make test
 ```
 
 ### Running the Tool
@@ -51,6 +86,9 @@ ghscan --user <username>
 
 # Common development test
 ghscan --user hsb3 --owned-only --no-report
+
+# Run example via Makefile
+make example  # Runs sindresorhus with 50 repo limit
 ```
 
 ## Key Implementation Details
@@ -70,7 +108,9 @@ ghscan --user hsb3 --owned-only --no-report
 **CLI Entry Points:**
 - Package defines `ghscan` script that calls `github_inventory.cli:main`
 - CLI supports modes: full collection, owned-only, starred-only, report-only
+- Batch processing: `--batch` (defaults) or `--config filename.yaml/json`
 - Default username is "hsb3" but can be overridden with `--user` flag
+- Environment variables loaded from `.env` file (copy from `.env.example`)
 
 ## Testing and Authentication
 

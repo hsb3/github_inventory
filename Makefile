@@ -1,47 +1,40 @@
 # GitHub Inventory - Development Makefile
 
-.PHONY: help setup clean example dev test quality
+.PHONY: help setup install hooks format lint typecheck test clean
+.DEFAULT_GOAL := help
 
 help:  ## Show this help message
-	@echo "GitHub Inventory - Quick Commands"
-	@echo "================================="
-	@echo ""
-	@echo "🚀 Getting Started:"
-	@grep -E '^(setup|example):.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
-	@echo ""
-	@echo "🔧 Development:"
-	@grep -E '^(dev|test|quality|clean):.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
-	@echo ""
-	@echo "💡 For more options: gh-inventory --help"
+	@echo "GitHub Inventory - Development Commands"
+	@echo "======================================"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
-setup:  ## Setup development environment
-	uv venv --python 3.12
+check-uv:
+	@command -v uv >/dev/null 2>&1 || { echo "❌ uv not found. Install with: curl -LsSf https://astral.sh/uv/install.sh | sh"; exit 1; }
+
+install: check-uv  ## Install dependencies only
+	@test -d .venv || uv venv --python 3.12
 	uv sync --all-extras
-	@echo "✅ Ready! Try: make example"
 
-example:  ## Run example with sindresorhus (50 repos)
-	mkdir -p docs/output_example
-	uv run gh-inventory --user sindresorhus --limit 50 \
-		--owned-csv docs/output_example/repos.csv \
-		--starred-csv docs/output_example/starred_repos.csv \
-		--report-md docs/output_example/README.md
+hooks: install  ## Install and run pre-commit hooks
+	uv run pre-commit install
+	uv run pre-commit run --all-files
 
-dev:  ## Run development checks (format, lint, test)
-	uv run ruff check --fix src/ tests/
+format: install  ## Format code
+	uv run ruff format src/ tests/
 	uv run black src/ tests/
-	uv run pymarkdown --disable-rules MD013 fix --exclude TODO.md --exclude CLAUDE.md *.md
-	uv run pytest tests/ -v
-	@echo "✅ Development checks passed!"
 
-test:  ## Run tests only
-	uv run pytest tests/ -v
-
-quality:  ## Run quality checks without fixes
+lint: install  ## Lint code
 	uv run ruff check src/ tests/
-	uv run black --check src/ tests/
-	uv run pymarkdown --disable-rules MD013 scan --exclude TODO.md --exclude CLAUDE.md *.md
+
+typecheck: install  ## Type check code
+	uv run mypy src/
+
+test: install  ## Run tests
 	uv run pytest tests/ -v
 
-clean:  ## Clean cache and output files
-	rm -rf .pytest_cache/ .ruff_cache/ build/ dist/ *.egg-info/ .mypy_cache/
-	find . -type d -name __pycache__ -exec rm -rf {} +
+setup: install hooks test  ## Setup complete development environment
+	@echo "✅ Development environment ready!"
+
+clean:  ## Clean cache and build files
+	rm -rf .pytest_cache/ .ruff_cache/ build/ dist/ *.egg-info/ .mypy_cache/ .venv/
+	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true

@@ -28,7 +28,7 @@ The tool automatically creates user-specific directories when run:
 #### Current User Data Directories
 
 - **aider-ai/** - Analysis of aider-ai GitHub account
-- **coleam00/** - Analysis of coleam00 GitHub account  
+- **coleam00/** - Analysis of coleam00 GitHub account
 - **danny-avila/** - Analysis of danny-avila GitHub account
 - **dlt-hub/** - Analysis of dlt-hub GitHub account
 - **hsb3/** - Analysis of hsb3 GitHub account

@@ -13,10 +13,10 @@ CLI tool for generating comprehensive GitHub repository inventories and reports
 
 ## Key Features
 
-• **Repository Analysis** - Analyzes owned and starred repositories with detailed metadata  
-• **Professional Reports** - Generates Markdown reports with statistics and language breakdowns  
-• **Batch Processing** - Process multiple GitHub accounts at once with configuration files  
-• **CSV Export** - Export data for further analysis in spreadsheet tools  
+• **Repository Analysis** - Analyzes owned and starred repositories with detailed metadata
+• **Professional Reports** - Generates Markdown reports with statistics and language breakdowns
+• **Batch Processing** - Process multiple GitHub accounts at once with configuration files
+• **CSV Export** - Export data for further analysis in spreadsheet tools
 • **Rate Limit Friendly** - Built-in limits for large accounts to avoid GitHub API limits
 
 📊 **[View Example Report](docs/output_example/README.md)** - See what the generated report looks like
@@ -41,7 +41,7 @@ uv run ghscan --user username
 # Just your repositories
 uv run ghscan --user username --owned-only
 
-# Limit results for large accounts  
+# Limit results for large accounts
 uv run ghscan --user sindresorhus --limit 50
 
 # Batch process multiple accounts (default: microsoft, google, facebook)
@@ -62,7 +62,7 @@ configs:
     limit: 50
   - account: "google"
     limit: 50
-  - account: "facebook" 
+  - account: "facebook"
     limit: 50
 ```
 
@@ -80,7 +80,7 @@ The tool automatically loads settings from a `.env` file in the project root:
 ```bash
 # .env
 GITHUB_USERNAME=your-username          # Default username
-REPORT_OWNED_LIMIT=30                 # Max owned repos in reports (-1 = no limit)  
+REPORT_OWNED_LIMIT=30                 # Max owned repos in reports (-1 = no limit)
 REPORT_STARRED_LIMIT=25               # Max starred repos in reports (-1 = no limit)
 OWNED_REPOS_CSV=docs/user/repos.csv   # Output paths
 ```
@@ -92,7 +92,7 @@ Copy `.env.example` to `.env` and customize as needed. Environment variables ove
 Creates three files in `docs/username/`:
 
 - `repos.csv` - Owned repository data
-- `starred_repos.csv` - Starred repository data  
+- `starred_repos.csv` - Starred repository data
 - `README.md` - Professional report with statistics and tables
 
 ## Prerequisites

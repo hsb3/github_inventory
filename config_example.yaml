@@ -1,5 +1,5 @@
 # GitHub Inventory Batch Configuration
-# 
+#
 # This file defines multiple GitHub accounts to process in batch mode.
 # Each account can have an optional limit to control API usage and processing time.
 
@@ -7,19 +7,19 @@ configs:
   # Popular AI/LLM repositories - limited to avoid rate limits
   - account: langchain-ai
     limit: 10  # Small limit for demo purposes
-  
+
   # AI coding assistant repositories
   - account: aider-ai
     # No limit specified - will process all repositories
-  
-  # LibreChat maintainer - limit for faster processing  
+
+  # LibreChat maintainer - limit for faster processing
   - account: danny-avila
     limit: 25
-  
+
   # Example of additional accounts you could add:
   # - account: microsoft
   #   limit: 50  # Large orgs should use limits
-  # 
+  #
   # - account: google
   #   limit: 100
   #
@@ -31,5 +31,5 @@ configs:
 #
 # Output will be generated in docs/{account}/ directories with:
 # - repos.csv (owned repositories)
-# - starred_repos.csv (starred repositories)  
+# - starred_repos.csv (starred repositories)
 # - README.md (comprehensive report)

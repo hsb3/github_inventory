@@ -1,7 +1,7 @@
 # GitHub Repository Inventory Report
 
-**Generated:** 2025-08-23 at 12:51 UTC  
-**Account:** @sindresorhus  
+**Generated:** 2025-08-23 at 12:51 UTC
+**Account:** @sindresorhus
 **Tool:** [GitHub Inventory](https://github.com/hsb3/github_inventory) via GitHub CLI
 
 ## Overview

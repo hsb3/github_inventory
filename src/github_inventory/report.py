@@ -62,10 +62,10 @@ def create_owned_repos_table(repos_data, limit_applied=None):
     """Create markdown table for owned repositories"""
     if not repos_data:
         return "No owned repository data found.\n\n"
-    
+
     # Load environment variables
     load_dotenv()
-    
+
     # Get display limit from environment variable, default to 30
     display_limit = int(os.getenv("REPORT_OWNED_LIMIT", "30"))
     if display_limit == -1:
@@ -137,10 +137,10 @@ def create_starred_repos_table(starred_data, limit_applied=None):
     """Create markdown table for starred repositories"""
     if not starred_data:
         return "No starred repository data found.\n\n"
-    
+
     # Load environment variables
     load_dotenv()
-    
+
     # Get display limit from environment variable, default to 25
     display_limit = int(os.getenv("REPORT_STARRED_LIMIT", "25"))
     if display_limit == -1:

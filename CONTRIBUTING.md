@@ -64,7 +64,7 @@ For usage questions, use the **Question** template or start a [Discussion](https
 3. Set up development environment:
 
    ```bash
-   uv sync
+   make setup
    ```
 
 ### Making Changes
@@ -77,20 +77,20 @@ For usage questions, use the **Question** template or start a [Discussion](https
 
 2. Make your changes following the project standards:
 
-   - Use `uv run black src/ tests/` for formatting
-   - Use `uv run ruff check src/ tests/` for linting
-   - Use `uv run mypy src/` for type checking
+   - Use `make format` for formatting
+   - Use `make lint` for linting
+   - Use `make typecheck` for type checking
    - Add tests for new functionality
 
 3. Test your changes:
 
    ```bash
    # Run all tests
-   uv run pytest tests/
-   
+   make test
+
    # Test CLI functionality
-   uv run gh-inventory --help
-   uv run gh-inventory --user hsb3 --limit 5 --no-report
+   uv run ghscan --help
+   uv run ghscan --user hsb3 --limit 5 --no-report
    ```
 
 4. Update documentation if needed
@@ -135,21 +135,21 @@ make lint
 # Type checking
 make typecheck
 
-# Run all checks
-make check
+# Run all pre-commit checks (recommended before committing)
+make hooks
 ```
 
 ### Testing Different Scenarios
 
 ```bash
 # Test with public user
-uv run gh-inventory --user octocat --limit 10
+uv run ghscan --user octocat --limit 10
 
 # Test batch processing
-uv run gh-inventory --batch config_example.yaml
+uv run ghscan --batch config_example.yaml
 
 # Test error handling
-uv run gh-inventory --user nonexistent-user-12345
+uv run ghscan --user nonexistent-user-12345
 ```
 
 ## GitHub CLI Considerations
