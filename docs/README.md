@@ -5,7 +5,7 @@ This directory contains documentation and example outputs for the GitHub Invento
 ## Contents
 
 ### Documentation Files
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Guidelines for submitting issues and pull requests
+- **[CONTRIBUTING.md](../CONTRIBUTING.md)** - Guidelines for submitting issues and pull requests
 - **[GITHUB_CLI.md](GITHUB_CLI.md)** - GitHub CLI setup and authentication guide
 
 ### Example Output
@@ -129,4 +129,4 @@ JSON configuration files are still supported for backward compatibility.
 - Generated files are excluded from git tracking (see `.gitignore`)
 
 ## Contributing
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on submitting issues and pull requests.
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on submitting issues and pull requests.

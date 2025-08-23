@@ -46,7 +46,45 @@ uv run ghscan --user sindresorhus --limit 50
 
 # Batch process multiple accounts
 uv run ghscan --batch
+
+# Custom configuration file (JSON/YAML)
+uv run ghscan --config accounts.yaml
 ```
+
+## Configuration Files
+
+For batch processing multiple accounts, create a JSON or YAML configuration file:
+
+```yaml
+# accounts.yaml
+configs:
+  - account: "langchain-ai"
+    limit: 100
+  - account: "microsoft" 
+  - account: "google"
+    limit: 50
+```
+
+```bash
+# Use the configuration
+uv run ghscan --config accounts.yaml
+```
+
+**Note**: Configuration files are **not** automatically detected - you must specify them with `--config filename`. Supports `.json`, `.yml`, and `.yaml` extensions.
+
+## Environment Configuration
+
+The tool automatically loads settings from a `.env` file in the project root:
+
+```bash
+# .env
+GITHUB_USERNAME=your-username          # Default username
+REPORT_OWNED_LIMIT=30                 # Max owned repos in reports (-1 = no limit)  
+REPORT_STARRED_LIMIT=25               # Max starred repos in reports (-1 = no limit)
+OWNED_REPOS_CSV=docs/user/repos.csv   # Output paths
+```
+
+Copy `.env.example` to `.env` and customize as needed. Environment variables override CLI defaults.
 
 ## Output
 
@@ -63,7 +101,7 @@ Creates three files in `docs/username/`:
 
 ## Documentation
 
-- [Contributing Guidelines](docs/CONTRIBUTING.md)
+- [Contributing Guidelines](CONTRIBUTING.md)
 - [Documentation Overview](docs/README.md)
 
 ## License

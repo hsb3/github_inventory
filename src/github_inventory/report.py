@@ -8,6 +8,8 @@ import csv
 import os
 from datetime import datetime
 
+from dotenv import load_dotenv
+
 
 def read_csv_data(filename):
     """Read CSV data and return as list of dictionaries"""
@@ -60,6 +62,14 @@ def create_owned_repos_table(repos_data, limit_applied=None):
     """Create markdown table for owned repositories"""
     if not repos_data:
         return "No owned repository data found.\n\n"
+    
+    # Load environment variables
+    load_dotenv()
+    
+    # Get display limit from environment variable, default to 30
+    display_limit = int(os.getenv("REPORT_OWNED_LIMIT", "30"))
+    if display_limit == -1:
+        display_limit = len(repos_data)  # Show all repos
 
     # Sort by last update date (most recent first)
     sorted_repos = sorted(
@@ -98,7 +108,7 @@ def create_owned_repos_table(repos_data, limit_applied=None):
     table += "|------|-------------|------------|----------|-----------|----------|----------|\n"
 
     # Table rows
-    for repo in sorted_repos[:30]:  # Show top 30 most recently updated
+    for repo in sorted_repos[:display_limit]:  # Show configurable number of repos
         name = f"[{repo.get('name', '')}]({repo.get('url', '')})"
         description = truncate_description(repo.get("description", ""), 50)
         visibility = repo.get("visibility", "")
@@ -111,11 +121,11 @@ def create_owned_repos_table(repos_data, limit_applied=None):
 
         table += f"| {name} | {description} | {visibility} | {language} | {size} | {branches} | {updated} |\n"
 
-    if len(repos_data) > 30:
+    if len(repos_data) > display_limit and display_limit != -1:
         if limit_applied:
-            table += f"\n*Showing 30 most recently updated repositories out of {len(repos_data)} collected (limited to {limit_applied}).*\n"
+            table += f"\n*Showing {display_limit} most recently updated repositories out of {len(repos_data)} collected (limited to {limit_applied}).*\n"
         else:
-            table += f"\n*Showing 30 most recently updated repositories out of {len(repos_data)} total.*\n"
+            table += f"\n*Showing {display_limit} most recently updated repositories out of {len(repos_data)} total.*\n"
     elif limit_applied and len(repos_data) == limit_applied:
         table += f"\n*Showing all {len(repos_data)} repositories (limited to {limit_applied}).*\n"
 
@@ -127,6 +137,14 @@ def create_starred_repos_table(starred_data, limit_applied=None):
     """Create markdown table for starred repositories"""
     if not starred_data:
         return "No starred repository data found.\n\n"
+    
+    # Load environment variables
+    load_dotenv()
+    
+    # Get display limit from environment variable, default to 25
+    display_limit = int(os.getenv("REPORT_STARRED_LIMIT", "25"))
+    if display_limit == -1:
+        display_limit = len(starred_data)  # Show all repos
 
     # Sort by star count (most starred first)
     sorted_starred = sorted(
@@ -163,7 +181,7 @@ def create_starred_repos_table(starred_data, limit_applied=None):
     table += "|------------|-------|-------------|----------|----------|----------|----------|\n"
 
     # Table rows
-    for repo in sorted_starred[:25]:  # Show top 25 most starred
+    for repo in sorted_starred[:display_limit]:  # Show configurable number of repos
         name = f"[{repo.get('name', '')}]({repo.get('url', '')})"
         owner = repo.get("owner", "")
         description = truncate_description(repo.get("description", ""), 60)
@@ -178,11 +196,11 @@ def create_starred_repos_table(starred_data, limit_applied=None):
 
         table += f"| {name} | {owner} | {description} | {language} | {stars} | {forks} | {updated} |\n"
 
-    if len(starred_data) > 25:
+    if len(starred_data) > display_limit and display_limit != -1:
         if limit_applied:
-            table += f"\n*Showing 25 most starred repositories out of {len(starred_data)} collected (limited to {limit_applied}).*\n"
+            table += f"\n*Showing {display_limit} most starred repositories out of {len(starred_data)} collected (limited to {limit_applied}).*\n"
         else:
-            table += f"\n*Showing 25 most starred repositories out of {len(starred_data)} total.*\n"
+            table += f"\n*Showing {display_limit} most starred repositories out of {len(starred_data)} total.*\n"
     elif limit_applied and len(starred_data) == limit_applied:
         table += f"\n*Showing all {len(starred_data)} starred repositories (limited to {limit_applied}).*\n"
 

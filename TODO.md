@@ -2,18 +2,17 @@
 
 ## Kanban
 
-**backlog**
+### **backlog**
+
 - [ ] fix test_cli.py for code base change
+- [ ] add configurable limits for reports (owned & starred)
+- [ ] move CONTRIBUTING.md to root?
+- [ ] determine what value of config file name and extension is looked for.  how handle when there is both a yaml and json
 
+### **in progress**
 
+### **completed**
 
-**in progress**
-- [ ] add PR and Issue template
-- [ ] add basic github workflows to prevent destructive changes to main branch
-- [ ] add pull request and issue submission instructions in docs/
-- [ ] add readme to docs/ with explanation of contents of docs/ --- exclude hidden folders
-
-**completed**
 - [x] use Claude Code CLI with Github MCP to create inventory; repo name, url
 - [x] create PRD for small project
 - [x] create a small python project to programmatically assemble this information
@@ -27,6 +26,11 @@
 - [x] add test for --limit (apply to both owned and starred)
 - [x] create readme; note prerequisite of installed github cli + authenticated session
 - [x] implement change order #1
+- [x] add PR and Issue template
+- [x] add basic github workflows to prevent destructive changes to main branch
+- [x] add pull request and issue submission instructions in docs/
+- [x] add readme to docs/ with explanation of contents of docs/ --- exclude hidden folders
+
 ---
 
 ## Developer Notes
@@ -34,10 +38,12 @@
 ### Objectives & Deliverables
 
 ### PRD
+
 - create csv files with detailed information for owned and starred repos
 - assemble the csv information into a report in .md format
 
-**technical choices**
+### **technical choices**
+
 - use gh cli to retrieve information
 - use python 3.12
 - no .python-version file -> pyproject.toml

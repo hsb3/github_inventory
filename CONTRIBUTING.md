@@ -6,7 +6,7 @@ Thank you for your interest in contributing to GitHub Inventory! This document p
 
 - Check existing [issues](https://github.com/hsb3/github_inventory/issues) and [pull requests](https://github.com/hsb3/github_inventory/pulls) to avoid duplicates
 - Make sure you have the GitHub CLI (`gh`) installed and authenticated
-- Familiarize yourself with the project by reading the main [README.md](../README.md)
+- Familiarize yourself with the project by reading the main [README.md](README.md)
 
 ## Reporting Issues
 
