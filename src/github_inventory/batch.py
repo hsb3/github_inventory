@@ -17,6 +17,7 @@ from .inventory import (
     collect_starred_repositories,
     write_to_csv,
 )
+from .models import OwnedRepository, StarredRepository
 from .report import generate_markdown_report
 
 
@@ -147,8 +148,8 @@ def process_single_account(config: RunConfig, base_dir: str = "docs") -> bool:
     starred_csv = output_dir / "starred_repos.csv"
     report_md = output_dir / "README.md"
 
-    owned_repos = []
-    starred_repos = []
+    owned_repos: List[OwnedRepository] = []
+    starred_repos: List[StarredRepository] = []
 
     try:
         # Collect owned repositories
@@ -214,9 +215,13 @@ def process_single_account(config: RunConfig, base_dir: str = "docs") -> bool:
             print(f"\nGenerating markdown report for: {account}")
             print("-" * 50)
 
+            # Convert Pydantic models to dictionaries for report generation
+            owned_dicts = [repo.model_dump() for repo in owned_repos] if owned_repos else None
+            starred_dicts = [repo.model_dump() for repo in starred_repos] if starred_repos else None
+
             success = generate_markdown_report(
-                owned_repos=owned_repos,
-                starred_repos=starred_repos,
+                owned_repos=owned_dicts,
+                starred_repos=starred_dicts,
                 username=account,
                 output_file=str(report_md),
                 limit_applied=limit,

@@ -9,9 +9,12 @@ import json
 import shlex
 import subprocess
 from datetime import datetime
+from typing import List, Optional, Union, Dict, Any
+
+from .models import OwnedRepository, StarredRepository, BranchCount
 
 
-def run_gh_command(cmd):
+def run_gh_command(cmd: Union[str, List[str]]) -> Optional[str]:
     """Run a GitHub CLI command and return the result"""
     try:
         # Use shlex.split() for security instead of shell=True
@@ -26,7 +29,7 @@ def run_gh_command(cmd):
         return None
 
 
-def get_repo_list(username, limit=None):
+def get_repo_list(username: str, limit: Optional[int] = None) -> List[Dict[str, Any]]:
     """Get list of all repositories for a user"""
     print("Getting repository list...")
 
@@ -47,7 +50,7 @@ def get_repo_list(username, limit=None):
         return []
 
 
-def get_branch_count(owner, repo_name):
+def get_branch_count(owner: str, repo_name: str) -> Union[int, str]:
     """Get the number of branches for a repository"""
     cmd = f'gh api repos/{owner}/{repo_name}/branches --jq "length"'
     result = run_gh_command(cmd)
@@ -58,7 +61,7 @@ def get_branch_count(owner, repo_name):
         return "unknown"
 
 
-def format_date(date_str):
+def format_date(date_str: Optional[str]) -> str:
     """Format ISO date string to readable format"""
     if not date_str:
         return ""
@@ -70,7 +73,7 @@ def format_date(date_str):
         return date_str
 
 
-def collect_owned_repositories(username, limit=None):
+def collect_owned_repositories(username: str, limit: Optional[int] = None) -> List[OwnedRepository]:
     """Process all repositories and gather detailed information"""
     repos = get_repo_list(username, limit)
     if not repos:
@@ -85,35 +88,35 @@ def collect_owned_repositories(username, limit=None):
         # Get branch count
         branch_count = get_branch_count(username, repo["name"])
 
-        # Extract and format data
-        repo_data = {
-            "name": repo.get("name", ""),
-            "description": repo.get("description", ""),
-            "url": repo.get("url", ""),
-            "visibility": "private" if repo.get("isPrivate", False) else "public",
-            "is_fork": str(repo.get("isFork", False)).lower(),
-            "creation_date": format_date(repo.get("createdAt", "")),
-            "last_update_date": format_date(repo.get("updatedAt", "")),
-            "default_branch": (
+        # Create OwnedRepository model instance
+        repo_data = OwnedRepository(
+            name=repo.get("name", ""),
+            description=repo.get("description") or "",
+            url=repo.get("url", ""),
+            visibility="private" if repo.get("isPrivate", False) else "public",
+            is_fork=repo.get("isFork", False),
+            creation_date=format_date(repo.get("createdAt")),
+            last_update_date=format_date(repo.get("updatedAt")),
+            default_branch=(
                 repo.get("defaultBranchRef", {}).get("name", "")
                 if repo.get("defaultBranchRef")
                 else ""
             ),
-            "number_of_branches": str(branch_count),
-            "primary_language": (
+            number_of_branches=branch_count,  # Keep as int or "unknown"
+            primary_language=(
                 repo.get("primaryLanguage", {}).get("name", "")
                 if repo.get("primaryLanguage")
                 else ""
             ),
-            "size": str(repo.get("diskUsage", "")) if repo.get("diskUsage") else "",
-        }
+            size=repo.get("diskUsage"),  # Keep as int (KB) or None
+        )
 
         detailed_repos.append(repo_data)
 
     return detailed_repos
 
 
-def get_starred_repos(username=None, limit=None):
+def get_starred_repos(username: Optional[str] = None, limit: Optional[int] = None) -> List[Dict[str, Any]]:
     """Get list of all starred repositories"""
     print("Getting starred repositories...")
 
@@ -152,7 +155,7 @@ def get_starred_repos(username=None, limit=None):
         return []
 
 
-def collect_starred_repositories(username=None, limit=None):
+def collect_starred_repositories(username: Optional[str] = None, limit: Optional[int] = None) -> List[StarredRepository]:
     """Process all starred repositories and gather detailed information"""
     repos = get_starred_repos(username, limit)
     if not repos:
@@ -169,54 +172,63 @@ def collect_starred_repositories(username=None, limit=None):
             repo.get("owner", {}).get("login", ""), repo["name"]
         )
 
-        # Extract and format data
-        repo_data = {
-            "name": repo.get("name", ""),
-            "full_name": repo.get("full_name", ""),
-            "owner": (
+        # Create StarredRepository model instance
+        repo_data = StarredRepository(
+            name=repo.get("name", ""),
+            full_name=repo.get("full_name", ""),
+            owner=(
                 repo.get("owner", {}).get("login", "") if repo.get("owner") else ""
             ),
-            "description": repo.get("description", ""),
-            "url": repo.get("html_url", ""),
-            "visibility": "private" if repo.get("private", False) else "public",
-            "is_fork": str(repo.get("fork", False)).lower(),
-            "creation_date": format_date(repo.get("created_at", "")),
-            "last_update_date": format_date(repo.get("updated_at", "")),
-            "last_push_date": format_date(repo.get("pushed_at", "")),
-            "default_branch": repo.get("default_branch", ""),
-            "number_of_branches": str(branch_count),
-            "primary_language": repo.get("language", ""),
-            "size": str(repo.get("size", "")),  # Size in KB
-            "stars": str(repo.get("stargazers_count", 0)),
-            "forks": str(repo.get("forks_count", 0)),
-            "watchers": str(repo.get("watchers_count", 0)),
-            "open_issues": str(repo.get("open_issues_count", 0)),
-            "license": (
+            description=repo.get("description") or "",
+            url=repo.get("html_url", ""),
+            visibility="private" if repo.get("private", False) else "public",
+            is_fork=repo.get("fork", False),
+            creation_date=format_date(repo.get("created_at")),
+            last_update_date=format_date(repo.get("updated_at")),
+            last_push_date=format_date(repo.get("pushed_at")),
+            default_branch=repo.get("default_branch", ""),
+            number_of_branches=branch_count,  # Keep as int or "unknown"
+            primary_language=repo.get("language") or "",
+            size=repo.get("size", 0),  # Size in bytes - keep as int
+            stars=repo.get("stargazers_count", 0),
+            forks=repo.get("forks_count", 0),
+            watchers=repo.get("watchers_count", 0),
+            open_issues=repo.get("open_issues_count", 0),
+            license=(
                 repo.get("license", {}).get("name", "") if repo.get("license") else ""
             ),
-            "topics": ", ".join(repo.get("topics", [])) if repo.get("topics") else "",
-            "homepage": repo.get("homepage", ""),
-            "archived": str(repo.get("archived", False)).lower(),
-            "disabled": str(repo.get("disabled", False)).lower(),
-        }
+            topics=", ".join(repo.get("topics", [])) if repo.get("topics") else "",
+            homepage=repo.get("homepage") or "",
+            archived=repo.get("archived", False),
+            disabled=repo.get("disabled", False),
+        )
 
         detailed_repos.append(repo_data)
 
     return detailed_repos
 
 
-def write_to_csv(repos, filename, headers=None):
+def write_to_csv(repos: List[Union[OwnedRepository, StarredRepository]], filename: str, headers: Optional[List[str]] = None) -> None:
     """Write repository data to CSV file"""
     if not repos:
         print("No data to write")
         return
 
     if not headers:
-        headers = list(repos[0].keys())
+        headers = list(repos[0].model_dump().keys())
 
     with open(filename, "w", newline="", encoding="utf-8") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=headers)
         writer.writeheader()
-        writer.writerows(repos)
+        # Convert Pydantic models to dictionaries for CSV output
+        for repo in repos:
+            repo_dict = repo.model_dump()
+            # Convert boolean values to string for CSV compatibility
+            for key, value in repo_dict.items():
+                if isinstance(value, bool):
+                    repo_dict[key] = str(value).lower()
+                elif value is None:
+                    repo_dict[key] = ""
+            writer.writerow(repo_dict)
 
     print(f"Data written to {filename}")

@@ -9,6 +9,7 @@ import os
 import platform
 import subprocess
 import sys
+from typing import List, Dict, Any, Union
 
 from dotenv import load_dotenv
 
@@ -18,10 +19,11 @@ from .inventory import (
     collect_starred_repositories,
     write_to_csv,
 )
+from .models import OwnedRepository, StarredRepository
 from .report import generate_markdown_report, read_csv_data
 
 
-def get_output_base():
+def get_output_base() -> str:
     """Determine output directory based on installation type"""
     if os.path.exists("pyproject.toml") and os.path.exists("src/github_inventory"):
         # Development mode - use relative paths
@@ -33,7 +35,7 @@ def get_output_base():
         return output_base
 
 
-def open_directory(directory_path):
+def open_directory(directory_path: str) -> None:
     """Open directory in the default file manager"""
     abs_path = os.path.abspath(directory_path)
 
@@ -55,7 +57,7 @@ def open_directory(directory_path):
         print(f"❌ Could not find file manager to open directory. Path: {abs_path}")
 
 
-def create_parser():
+def create_parser() -> argparse.ArgumentParser:
     """Create the argument parser"""
     # Load environment variables
     load_dotenv()
@@ -182,7 +184,7 @@ Examples:
     return parser
 
 
-def print_summary(owned_repos, starred_repos):
+def print_summary(owned_repos: List[Union[OwnedRepository, Dict[str, Any]]], starred_repos: List[Union[StarredRepository, Dict[str, Any]]]) -> None:
     """Print summary statistics"""
     print(f"\n{'=' * 50}")
     print("SUMMARY")
@@ -243,7 +245,7 @@ def print_summary(owned_repos, starred_repos):
             print(f"   - Top languages: {lang_str}")
 
 
-def main():
+def main() -> None:
     """Main CLI function"""
     parser = create_parser()
     args = parser.parse_args()
@@ -273,8 +275,8 @@ def main():
         run_batch_processing(configs)
         return
 
-    owned_repos = []
-    starred_repos = []
+    owned_repos: List[OwnedRepository] = []
+    starred_repos: List[StarredRepository] = []
 
     # Update paths to use the current username (always use docs/{username}/ structure)
     default_username = os.getenv("GITHUB_USERNAME", "hsb3")
@@ -302,8 +304,10 @@ def main():
     if args.report_only:
         print("Generating report from existing CSV files...")
 
-        owned_repos = read_csv_data(args.owned_csv)
-        starred_repos = read_csv_data(args.starred_csv)
+        owned_csv_data = read_csv_data(args.owned_csv)
+        starred_csv_data = read_csv_data(args.starred_csv)
+        owned_repos = owned_csv_data
+        starred_repos = starred_csv_data
 
         if not owned_repos and not starred_repos:
             print(
@@ -312,15 +316,15 @@ def main():
             sys.exit(1)
 
         success = generate_markdown_report(
-            owned_repos=owned_repos,
-            starred_repos=starred_repos,
+            owned_repos=owned_csv_data,
+            starred_repos=starred_csv_data,
             username=args.user,
             output_file=args.report_md,
             limit_applied=args.limit,
         )
 
         if success:
-            print_summary(owned_repos, starred_repos)
+            print_summary(owned_csv_data, starred_csv_data)
         sys.exit(0 if success else 1)
 
     # Collect owned repositories
@@ -390,9 +394,13 @@ def main():
         print("\nGenerating markdown report...")
         print("-" * 50)
 
+        # Convert Pydantic models to dictionaries for report generation
+        owned_dicts = [repo.model_dump() for repo in owned_repos] if owned_repos else None
+        starred_dicts = [repo.model_dump() for repo in starred_repos] if starred_repos else None
+        
         success = generate_markdown_report(
-            owned_repos=owned_repos,
-            starred_repos=starred_repos,
+            owned_repos=owned_dicts,
+            starred_repos=starred_dicts,
             username=args.user,
             output_file=args.report_md,
             limit_applied=args.limit,

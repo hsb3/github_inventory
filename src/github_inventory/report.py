@@ -7,11 +7,14 @@ Creates a markdown file with tables showing repository inventories
 import csv
 import os
 from datetime import datetime
+from typing import List, Dict, Any, Optional, Union
 
 from dotenv import load_dotenv
 
+from .models import OwnedRepository, StarredRepository
 
-def read_csv_data(filename):
+
+def read_csv_data(filename: str) -> List[Dict[str, Any]]:
     """Read CSV data and return as list of dictionaries"""
     if not os.path.exists(filename):
         print(f"Error: {filename} not found")
@@ -26,39 +29,46 @@ def read_csv_data(filename):
         return []
 
 
-def format_number(value):
+def format_number(value: Union[str, int, None]) -> str:
     """Format numbers with commas for readability"""
     if not value or value == "" or value == "unknown":
-        return value
+        return str(value) if value is not None else ""
     try:
+        # Handle both string and integer inputs
+        if isinstance(value, int):
+            return f"{value:,}"
         num = int(value)
         return f"{num:,}"
     except (ValueError, TypeError):
-        return value
+        return str(value)
 
 
-def format_size_mb(value):
+def format_size_mb(value: Union[str, int, None]) -> str:
     """Format size from KB to MB with one decimal place"""
     if not value or value == "" or value == "unknown":
-        return value
+        return str(value) if value is not None else ""
     try:
-        kb = int(value)
+        # Handle both string and integer inputs
+        if isinstance(value, int):
+            kb = value
+        else:
+            kb = int(value)
         mb = kb / 1024
         if mb < 0.1:
             return "<0.1"
         return f"{mb:.1f}"
     except (ValueError, TypeError):
-        return value
+        return str(value) if value is not None else ""
 
 
-def truncate_description(description, max_length=80):
+def truncate_description(description: Optional[str], max_length: int = 80) -> str:
     """Truncate description to fit in table"""
     if not description or len(description) <= max_length:
         return description
     return description[: max_length - 3] + "..."
 
 
-def create_owned_repos_table(repos_data, limit_applied=None):
+def create_owned_repos_table(repos_data: List[Dict[str, Any]], limit_applied: Optional[int] = None) -> str:
     """Create markdown table for owned repositories"""
     if not repos_data:
         return "No owned repository data found.\n\n"
@@ -116,7 +126,7 @@ def create_owned_repos_table(repos_data, limit_applied=None):
             visibility += " (fork)"
         language = repo.get("primary_language", "")
         size = format_size_mb(repo.get("size", ""))
-        branches = repo.get("number_of_branches", "")
+        branches = format_number(repo.get("number_of_branches", ""))
         updated = repo.get("last_update_date", "")
 
         table += f"| {name} | {description} | {visibility} | {language} | {size} | {branches} | {updated} |\n"
@@ -133,7 +143,7 @@ def create_owned_repos_table(repos_data, limit_applied=None):
     return table
 
 
-def create_starred_repos_table(starred_data, limit_applied=None):
+def create_starred_repos_table(starred_data: List[Dict[str, Any]], limit_applied: Optional[int] = None) -> str:
     """Create markdown table for starred repositories"""
     if not starred_data:
         return "No starred repository data found.\n\n"
@@ -147,8 +157,17 @@ def create_starred_repos_table(starred_data, limit_applied=None):
         display_limit = len(starred_data)  # Show all repos
 
     # Sort by star count (most starred first)
+    def get_star_count(repo: Dict[str, Any]) -> int:
+        stars = repo.get("stars", 0)
+        if isinstance(stars, int):
+            return stars
+        try:
+            return int(stars or "0")
+        except (ValueError, TypeError):
+            return 0
+    
     sorted_starred = sorted(
-        starred_data, key=lambda x: int(x.get("stars", "0") or "0"), reverse=True
+        starred_data, key=get_star_count, reverse=True
     )
 
     table = "## Starred Repositories\n\n"
@@ -208,7 +227,7 @@ def create_starred_repos_table(starred_data, limit_applied=None):
     return table
 
 
-def create_summary_section(username="hsb3"):
+def create_summary_section(username: str = "hsb3") -> str:
     """Create a summary section with key metrics"""
     current_date = datetime.now().strftime("%Y-%m-%d at %H:%M UTC")
 
@@ -235,7 +254,7 @@ def create_summary_section(username="hsb3"):
     return summary
 
 
-def create_footer():
+def create_footer() -> str:
     """Create a footer with additional information"""
     footer = "\n---\n"
     footer += "*Generated using GitHub CLI and Python*\n"
@@ -244,12 +263,12 @@ def create_footer():
 
 
 def generate_markdown_report(
-    owned_repos=None,
-    starred_repos=None,
-    username="hsb3",
-    output_file="github_inventory_report.md",
-    limit_applied=None,
-):
+    owned_repos: Optional[List[Dict[str, Any]]] = None,
+    starred_repos: Optional[List[Dict[str, Any]]] = None,
+    username: str = "hsb3",
+    output_file: str = "github_inventory_report.md",
+    limit_applied: Optional[int] = None,
+) -> bool:
     """Generate a complete markdown report"""
 
     # Create markdown content
