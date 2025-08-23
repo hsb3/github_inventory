@@ -24,9 +24,9 @@ class TestCLIParser:
                 args = parser.parse_args([])
 
                 assert args.user == "hsb3"
-                assert args.owned_csv == "github_inventory_detailed.csv"
-                assert args.starred_csv == "starred_repos.csv"
-                assert args.report_md == "github_inventory_report.md"
+                assert args.owned_csv == "docs/hsb3/repos.csv"
+                assert args.starred_csv == "docs/hsb3/starred_repos.csv"
+                assert args.report_md == "docs/hsb3/README.md"
 
     def test_environment_variable_loading(self):
         """Test that environment variables are properly loaded"""
@@ -69,6 +69,7 @@ class TestCLIParser:
         assert not args.starred_only
         assert not args.report_only
         assert not args.no_report
+        assert args.limit is None
 
         # Test setting flags
         args = parser.parse_args(["--owned-only", "--no-report"])
@@ -76,6 +77,41 @@ class TestCLIParser:
         assert not args.starred_only
         assert not args.report_only
         assert args.no_report
+
+    def test_limit_parameter(self):
+        """Test limit parameter functionality"""
+        parser = create_parser()
+
+        # Test default limit
+        args = parser.parse_args([])
+        assert args.limit is None
+
+        # Test setting limit
+        args = parser.parse_args(["--limit", "50"])
+        assert args.limit == 50
+
+        # Test zero limit
+        args = parser.parse_args(["--limit", "0"])
+        assert args.limit == 0
+
+    def test_batch_parameters(self):
+        """Test batch processing parameters"""
+        parser = create_parser()
+
+        # Test default values
+        args = parser.parse_args([])
+        assert args.batch is False
+        assert args.config is None
+
+        # Test batch flag (uses default configs)
+        args = parser.parse_args(["--batch"])
+        assert args.batch is True
+        assert args.config is None
+
+        # Test custom config file
+        args = parser.parse_args(["--config", "config.json"])
+        assert args.batch is False
+        assert args.config == "config.json"
 
     def test_dotenv_file_loading(self):
         """Test loading from .env file"""
