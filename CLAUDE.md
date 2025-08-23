@@ -87,3 +87,13 @@ gh auth login
 ```
 
 The tool collects repository metadata including private repository information, so proper authentication scope is required.
+
+## Markdown Style Guidelines
+
+When editing README.md or other markdown files, follow these formatting rules to pass pymarkdown linting:
+
+- **MD022**: Always add blank lines above and below headings
+- **MD040**: Specify language for all fenced code blocks (e.g., ```bash, ```python)
+- Avoid line lengths over 80 characters when possible (MD013 disabled but good practice)
+
+These files are excluded from markdown linting: TODO.md, CLAUDE.md

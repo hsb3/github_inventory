@@ -29,7 +29,7 @@ example:  ## Run example with sindresorhus (50 repos)
 dev:  ## Run development checks (format, lint, test)
 	uv run ruff check --fix src/ tests/
 	uv run black src/ tests/
-	uv run pymarkdown --disable-rules MD013 fix *.md
+	uv run pymarkdown --disable-rules MD013 fix --exclude TODO.md --exclude CLAUDE.md *.md
 	uv run pytest tests/ -v
 	@echo "✅ Development checks passed!"
 
@@ -39,7 +39,7 @@ test:  ## Run tests only
 quality:  ## Run quality checks without fixes
 	uv run ruff check src/ tests/
 	uv run black --check src/ tests/
-	uv run pymarkdown --disable-rules MD013 scan *.md
+	uv run pymarkdown --disable-rules MD013 scan --exclude TODO.md --exclude CLAUDE.md *.md
 	uv run pytest tests/ -v
 
 clean:  ## Clean cache and output files
