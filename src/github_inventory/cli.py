@@ -9,7 +9,7 @@ import os
 import platform
 import subprocess
 import sys
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
 from dotenv import load_dotenv
 
@@ -178,7 +178,6 @@ def collect_repository_data(args, path_manager: PathManager) -> tuple[List[Dict[
 def generate_outputs(owned_repos: List[Dict[str, Any]], starred_repos: List[Dict[str, Any]], args, path_manager: PathManager) -> bool:
     """Generate markdown report and print summary"""
     success = True
-    
     # Generate markdown report
     if not args.no_report and (owned_repos or starred_repos):
         print("\nGenerating markdown report...")
@@ -204,7 +203,6 @@ def generate_outputs(owned_repos: List[Dict[str, Any]], starred_repos: List[Dict
     else:
         print("❌ No data collected. Please check your GitHub CLI authentication.")
         return False
-        
     return success
 
 
@@ -438,12 +436,10 @@ def main():
 
     # Create path manager for current user
     path_manager = PathManager(args.user)
-    
     # Update argument paths using path manager
     args.owned_csv = path_manager.get_owned_csv_path(args.owned_csv)
     args.starred_csv = path_manager.get_starred_csv_path(args.starred_csv)
     args.report_md = path_manager.get_report_md_path(args.report_md)
-    
     # Ensure output directory exists
     path_manager.ensure_output_directory(args.owned_csv)
 
