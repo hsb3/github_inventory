@@ -462,8 +462,10 @@ def main():
     args.owned_csv = path_manager.get_owned_csv_path(args.owned_csv)
     args.starred_csv = path_manager.get_starred_csv_path(args.starred_csv)
     args.report_md = path_manager.get_report_md_path(args.report_md)
-    # Ensure output directory exists
+    # Ensure output directories exist
     path_manager.ensure_output_directory(args.owned_csv)
+    path_manager.ensure_output_directory(args.starred_csv)
+    path_manager.ensure_output_directory(args.report_md)
 
     # Handle report-only mode
     if args.report_only:
