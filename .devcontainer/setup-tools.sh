@@ -35,7 +35,7 @@ fi
 echo "🔒 Setting up permissions..."
 sudo chown -R vscode:vscode /tmp
 mkdir -p /tmp/uv-cache /home/vscode/commandhistory
-chown -R vscode:vscode /tmp/uv-cache /home/vscode/commandhistory
+sudo chown -R vscode:vscode /tmp/uv-cache /home/vscode/commandhistory
 
 echo ""
 echo "✅ Tool setup completed!"
