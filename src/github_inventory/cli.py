@@ -20,12 +20,12 @@ from .exceptions import (
     GitHubCLIError,
     GitHubInventoryError,
 )
+from .github_client import create_github_client
 from .inventory import (
     collect_owned_repositories,
     collect_starred_repositories,
     write_to_csv,
 )
-from .github_client import create_github_client
 from .report import generate_markdown_report, read_csv_data
 
 
@@ -112,7 +112,7 @@ def handle_batch_processing(args) -> None:
 
 def collect_repository_data(
     args, path_manager: PathManager, client=None
-) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+) -> tuple:
     """Collect owned and starred repository data"""
     owned_repos = []
     starred_repos = []
@@ -397,7 +397,7 @@ def print_summary(owned_repos, starred_repos):
         print(f"   - Original: {original_count} | Forks: {fork_count}")
 
         # Language breakdown
-        languages: dict[str, int] = {}
+        languages: Dict[str, int] = {}
         for repo in owned_repos:
             lang = repo.get("primary_language", "")
             if lang:
@@ -425,7 +425,7 @@ def print_summary(owned_repos, starred_repos):
         )
 
         # Language breakdown
-        starred_languages: dict[str, int] = {}
+        starred_languages: Dict[str, int] = {}
         for repo in starred_repos:
             lang = repo.get("primary_language", "")
             if lang:

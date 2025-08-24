@@ -6,11 +6,13 @@ This module provides a hierarchy of custom exceptions for consistent error handl
 throughout the GitHub Inventory application.
 """
 
+from typing import Optional
+
 
 class GitHubInventoryError(Exception):
     """Base exception for all GitHub Inventory errors"""
 
-    def __init__(self, message: str, details: str | None = None) -> None:
+    def __init__(self, message: str, details: Optional[str] = None) -> None:
         super().__init__(message)
         self.message = message
         self.details = details
@@ -25,7 +27,7 @@ class GitHubCLIError(GitHubInventoryError):
     """Raised when GitHub CLI commands fail"""
 
     def __init__(
-        self, command: str, stderr: str | None = None, exit_code: int | None = None
+        self, command: str, stderr: Optional[str] = None, exit_code: Optional[int] = None
     ) -> None:
         message = f"GitHub CLI command failed: {command}"
         super().__init__(message, stderr)
@@ -38,7 +40,7 @@ class ConfigurationError(GitHubInventoryError):
     """Raised when configuration is invalid or cannot be loaded"""
 
     def __init__(
-        self, config_file: str | None = None, message: str = "Configuration error"
+        self, config_file: Optional[str] = None, message: str = "Configuration error"
     ) -> None:
         if config_file and message == "Configuration error":
             full_message = f"Configuration error in {config_file}"
@@ -53,7 +55,7 @@ class ConfigurationError(GitHubInventoryError):
 class DataProcessingError(GitHubInventoryError):
     """Raised when data processing fails (JSON parsing, CSV operations, etc.)"""
 
-    def __init__(self, operation: str, details: str | None = None) -> None:
+    def __init__(self, operation: str, details: Optional[str] = None) -> None:
         message = f"Data processing failed: {operation}"
         super().__init__(message, details)
         self.operation = operation
@@ -70,7 +72,7 @@ class FileOperationError(GitHubInventoryError):
     """Raised when file operations fail"""
 
     def __init__(
-        self, filepath: str, operation: str, details: str | None = None
+        self, filepath: str, operation: str, details: Optional[str] = None
     ) -> None:
         message = f"File operation failed: {operation} on {filepath}"
         super().__init__(message, details)
