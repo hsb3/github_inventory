@@ -108,13 +108,13 @@ class TestLimitParameter:
 
         # Test with limit
         result = collect_owned_repositories("testuser", limit=10)
-        mock_get_repos.assert_called_once_with("testuser", 10)
+        mock_get_repos.assert_called_once_with("testuser", 10, None)
         assert len(result) == 1
 
         # Test without limit
         mock_get_repos.reset_mock()
         collect_owned_repositories("testuser")
-        mock_get_repos.assert_called_once_with("testuser", None)
+        mock_get_repos.assert_called_once_with("testuser", None, None)
 
     @patch("github_inventory.inventory.get_branch_count")
     @patch("github_inventory.inventory.get_starred_repos")
@@ -153,21 +153,29 @@ class TestLimitParameter:
 
         # Test with limit
         result = collect_starred_repositories("testuser", limit=15)
-        mock_get_starred.assert_called_once_with("testuser", 15)
+        mock_get_starred.assert_called_once_with("testuser", 15, None)
         assert len(result) == 1
 
         # Test without limit
         mock_get_starred.reset_mock()
         collect_starred_repositories("testuser")
-        mock_get_starred.assert_called_once_with("testuser", None)
+        mock_get_starred.assert_called_once_with("testuser", None, None)
 
     @patch("github_inventory.cli.collect_starred_repositories")
     @patch("github_inventory.cli.collect_owned_repositories")
-    def test_cli_integration_with_limit(self, mock_collect_owned, mock_collect_starred):
+    @patch("github_inventory.cli.create_github_client")
+    def test_cli_integration_with_limit(
+        self, mock_create_client, mock_collect_owned, mock_collect_starred
+    ):
         """Test that CLI passes limit to collection functions"""
         import sys
 
         from github_inventory.cli import main
+        from github_inventory.github_client import MockGitHubClient
+
+        # Mock the client creation to return a mock client
+        mock_client = MockGitHubClient()
+        mock_create_client.return_value = mock_client
 
         # Mock the collections to return empty lists
         mock_collect_owned.return_value = []
@@ -188,9 +196,18 @@ class TestLimitParameter:
             except SystemExit:
                 pass  # Expected for no data
 
-        # Verify both functions were called with limit
-        mock_collect_owned.assert_called_once_with("testuser", 20)
-        mock_collect_starred.assert_called_once_with("testuser", 20)
+        # Verify both functions were called with limit and client
+        assert mock_collect_owned.call_count == 1
+        args, kwargs = mock_collect_owned.call_args
+        assert args[0] == "testuser"  # username
+        assert args[1] == 20  # limit
+        assert args[2] == mock_client  # client
+
+        assert mock_collect_starred.call_count == 1
+        args, kwargs = mock_collect_starred.call_args
+        assert args[0] == "testuser"  # username
+        assert args[1] == 20  # limit
+        assert args[2] == mock_client  # client
 
 
 class TestLimitEdgeCases:

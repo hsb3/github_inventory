@@ -6,22 +6,22 @@ Uses GitHub CLI to gather comprehensive repository information
 
 import csv
 import json
-import shlex
-import subprocess
 from datetime import datetime
+from typing import Optional
 
 from .exceptions import (
-    AuthenticationError,
     DataProcessingError,
     GitHubCLIError,
 )
+from .github_client import GitHubClient, create_github_client
 
 
-def run_gh_command(cmd):
+def run_gh_command(cmd, client: Optional[GitHubClient] = None):
     """Run a GitHub CLI command and return the result
 
     Args:
         cmd: GitHub CLI command to run (string or list of args)
+        client: GitHub client to use (creates default if None)
 
     Returns:
         str: Command output
@@ -30,32 +30,18 @@ def run_gh_command(cmd):
         GitHubCLIError: When the GitHub CLI command fails
         AuthenticationError: When authentication is required but missing
     """
-    try:
-        # Use shlex.split() for security instead of shell=True
-        cmd_args = shlex.split(cmd) if isinstance(cmd, str) else cmd
-        result = subprocess.run(  # noqa: S603
-            cmd_args, capture_output=True, text=True, check=True
-        )
-        return result.stdout.strip()
-    except subprocess.CalledProcessError as e:
-        stderr = e.stderr.strip() if e.stderr else ""
-
-        # Check for common authentication errors
-        if "authentication" in stderr.lower() or "login" in stderr.lower():
-            raise AuthenticationError(
-                "GitHub CLI authentication required. Please run 'gh auth login'"
-            ) from e
-
-        # Raise GitHubCLIError with details
-        raise GitHubCLIError(cmd, stderr, e.returncode) from e
+    if client is None:
+        client = create_github_client()
+    return client.run_command(cmd)
 
 
-def get_repo_list(username, limit=None):
+def get_repo_list(username, limit=None, client: Optional[GitHubClient] = None):
     """Get list of all repositories for a user
 
     Args:
         username: GitHub username
         limit: Maximum number of repositories to fetch
+        client: GitHub client to use (creates default if None)
 
     Returns:
         list: List of repository data dictionaries
@@ -71,7 +57,7 @@ def get_repo_list(username, limit=None):
     limit_param = f"--limit {limit}" if limit is not None else "--limit 1000"
     cmd = f'gh repo list {username} {limit_param} --json "name,description,url,isPrivate,isFork,createdAt,updatedAt,defaultBranchRef,primaryLanguage,diskUsage"'
 
-    output = run_gh_command(cmd)
+    output = run_gh_command(cmd, client)
     if not output:
         return []
 
@@ -85,19 +71,20 @@ def get_repo_list(username, limit=None):
         ) from e
 
 
-def get_branch_count(owner, repo_name):
+def get_branch_count(owner, repo_name, client: Optional[GitHubClient] = None):
     """Get the number of branches for a repository
 
     Args:
         owner: Repository owner username
         repo_name: Repository name
+        client: GitHub client to use (creates default if None)
 
     Returns:
         int or str: Number of branches, or "unknown" if unable to determine
     """
     cmd = f'gh api repos/{owner}/{repo_name}/branches --jq "length"'
     try:
-        result = run_gh_command(cmd)
+        result = run_gh_command(cmd, client)
         if result and result.isdigit():
             return int(result)
         else:
@@ -120,9 +107,11 @@ def format_date(date_str):
         return date_str
 
 
-def collect_owned_repositories(username, limit=None):
+def collect_owned_repositories(
+    username, limit=None, client: Optional[GitHubClient] = None
+):
     """Process all repositories and gather detailed information"""
-    repos = get_repo_list(username, limit)
+    repos = get_repo_list(username, limit, client)
     if not repos:
         print("No repositories found or error occurred")
         return []
@@ -133,7 +122,7 @@ def collect_owned_repositories(username, limit=None):
         print(f"Processing repository {i}/{len(repos)}: {repo['name']}")
 
         # Get branch count
-        branch_count = get_branch_count(username, repo["name"])
+        branch_count = get_branch_count(username, repo["name"], client)
 
         # Extract and format data
         repo_data = {
@@ -163,12 +152,13 @@ def collect_owned_repositories(username, limit=None):
     return detailed_repos
 
 
-def get_starred_repos(username=None, limit=None):
+def get_starred_repos(username=None, limit=None, client: Optional[GitHubClient] = None):
     """Get list of all starred repositories
 
     Args:
         username: GitHub username (None for authenticated user)
         limit: Maximum number of starred repositories to fetch
+        client: GitHub client to use (creates default if None)
 
     Returns:
         list: List of starred repository data dictionaries
@@ -192,7 +182,7 @@ def get_starred_repos(username=None, limit=None):
         else:
             cmd = 'gh api user/starred --paginate --jq "."'
 
-    output = run_gh_command(cmd)
+    output = run_gh_command(cmd, client)
     if not output:
         return []
 
@@ -216,9 +206,11 @@ def get_starred_repos(username=None, limit=None):
         ) from e
 
 
-def collect_starred_repositories(username=None, limit=None):
+def collect_starred_repositories(
+    username=None, limit=None, client: Optional[GitHubClient] = None
+):
     """Process all starred repositories and gather detailed information"""
-    repos = get_starred_repos(username, limit)
+    repos = get_starred_repos(username, limit, client)
     if not repos:
         print("No starred repositories found or error occurred")
         return []
@@ -230,7 +222,7 @@ def collect_starred_repositories(username=None, limit=None):
 
         # Get branch count
         branch_count = get_branch_count(
-            repo.get("owner", {}).get("login", ""), repo["name"]
+            repo.get("owner", {}).get("login", ""), repo["name"], client
         )
 
         # Extract and format data

@@ -53,7 +53,14 @@ jobs:
             - Proper error handling and user feedback
             - Documentation updates if needed
 
-            Run the test suite and linting tools to verify code quality.
+            CRITICAL TEST REVIEW REQUIREMENTS:
+            - Verify that ALL tests pass by running the test suite
+            - Check if function signature changes require test updates
+            - Ensure mocks and test expectations match actual function signatures
+            - If any tests fail, the PR should be marked as needing fixes
+            - Look for missing test coverage on new or modified functionality
+
+            Run make test (or pytest tests/ -v) and make lint to verify code quality.
             Be constructive and suggest specific improvements.
 
           # Optional: Use sticky comments to make Claude reuse the same comment on subsequent pushes to the same PR
@@ -74,7 +81,7 @@ jobs:
           #   'Please provide a thorough code review focusing on our coding standards and best practices.' }}
 
           # Optional: Add specific tools for running tests or linting
-          allowed_tools: "Bash(make test),Bash(make lint),Bash(make typecheck),Bash(pytest tests/ -v),Bash(ruff check src/),Bash(mypy src/)"
+          allowed_tools: "Bash(make test),Bash(make lint),Bash(make typecheck),Bash(pytest tests/ -v),Bash(ruff check src/),Bash(mypy src/),Bash(grep *),Bash(find *),Bash(uv run pytest *),Bash(make hooks)"
 
           # Optional: Skip review for certain conditions
           # if: |

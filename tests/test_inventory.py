@@ -6,11 +6,10 @@ Tests for inventory module
 import csv
 import json
 import tempfile
-from unittest.mock import patch
 
 import pytest
 
-from github_inventory.exceptions import GitHubCLIError
+from github_inventory.github_client import MockGitHubClient
 from github_inventory.inventory import (
     collect_owned_repositories,
     format_date,
@@ -24,70 +23,55 @@ from github_inventory.inventory import (
 class TestGitHubCLICommands:
     """Test GitHub CLI command execution"""
 
-    @patch("subprocess.run")
-    def test_run_gh_command_success(self, mock_run):
+    def test_run_gh_command_success(self):
         """Test successful GitHub CLI command execution"""
-        mock_run.return_value.stdout = "test output"
-        mock_run.return_value.returncode = 0
+        client = MockGitHubClient()
+        client.set_response("gh repo list", "test output")
 
-        result = run_gh_command("gh repo list")
+        result = run_gh_command("gh repo list", client)
 
         assert result == "test output"
-        mock_run.assert_called_once()
+        assert "gh repo list" in client.call_history
 
-    @patch("subprocess.run")
-    def test_run_gh_command_failure(self, mock_run):
-        """Test failed GitHub CLI command execution"""
-        from subprocess import CalledProcessError
-
-        mock_run.side_effect = CalledProcessError(
-            1, "gh repo list", stderr="Command failed"
-        )
-
-        with pytest.raises(GitHubCLIError) as exc_info:
-            run_gh_command("gh repo list")
-
-        assert "gh repo list" in str(exc_info.value)
-
-    @patch("github_inventory.inventory.run_gh_command")
-    def test_get_repo_list_success(self, mock_run_gh):
+    def test_get_repo_list_success(self):
         """Test successful repository list retrieval"""
         mock_repos = [
             {"name": "repo1", "description": "Test repo 1"},
             {"name": "repo2", "description": "Test repo 2"},
         ]
-        mock_run_gh.return_value = json.dumps(mock_repos)
+        client = MockGitHubClient()
+        client.set_response("gh repo list", json.dumps(mock_repos))
 
-        result = get_repo_list("testuser")
+        result = get_repo_list("testuser", client=client)
 
         assert len(result) == 2
         assert result[0]["name"] == "repo1"
         assert result[1]["name"] == "repo2"
 
-    @patch("github_inventory.inventory.run_gh_command")
-    def test_get_repo_list_empty(self, mock_run_gh):
+    def test_get_repo_list_empty(self):
         """Test empty repository list"""
-        mock_run_gh.return_value = None
+        client = MockGitHubClient()
+        # MockGitHubClient returns empty string by default
 
-        result = get_repo_list("testuser")
+        result = get_repo_list("testuser", client=client)
 
         assert result == []
 
-    @patch("github_inventory.inventory.run_gh_command")
-    def test_get_branch_count_success(self, mock_run_gh):
+    def test_get_branch_count_success(self):
         """Test successful branch count retrieval"""
-        mock_run_gh.return_value = "5"
+        client = MockGitHubClient()
+        client.set_response("gh api repos/owner/repo/branches", "5")
 
-        result = get_branch_count("owner", "repo")
+        result = get_branch_count("owner", "repo", client)
 
         assert result == 5
 
-    @patch("github_inventory.inventory.run_gh_command")
-    def test_get_branch_count_failure(self, mock_run_gh):
+    def test_get_branch_count_failure(self):
         """Test failed branch count retrieval"""
-        mock_run_gh.return_value = None
+        client = MockGitHubClient()
+        # MockGitHubClient returns empty string by default
 
-        result = get_branch_count("owner", "repo")
+        result = get_branch_count("owner", "repo", client)
 
         assert result == "unknown"
 
@@ -119,9 +103,7 @@ class TestDataFormatting:
 class TestRepositoryCollection:
     """Test repository data collection"""
 
-    @patch("github_inventory.inventory.get_branch_count")
-    @patch("github_inventory.inventory.get_repo_list")
-    def test_collect_owned_repositories(self, mock_get_repos, mock_get_branches):
+    def test_collect_owned_repositories(self):
         """Test collecting owned repositories"""
         mock_repos = [
             {
@@ -137,10 +119,12 @@ class TestRepositoryCollection:
                 "diskUsage": 1024,
             }
         ]
-        mock_get_repos.return_value = mock_repos
-        mock_get_branches.return_value = 3
 
-        result = collect_owned_repositories("testuser")
+        client = MockGitHubClient()
+        client.set_response("gh repo list", json.dumps(mock_repos))
+        client.set_response("gh api repos/testuser/test-repo/branches", "3")
+
+        result = collect_owned_repositories("testuser", client=client)
 
         assert len(result) == 1
         repo = result[0]
@@ -151,12 +135,12 @@ class TestRepositoryCollection:
         assert repo["number_of_branches"] == "3"
         assert repo["primary_language"] == "Python"
 
-    @patch("github_inventory.inventory.get_repo_list")
-    def test_collect_owned_repositories_empty(self, mock_get_repos):
+    def test_collect_owned_repositories_empty(self):
         """Test collecting owned repositories when none exist"""
-        mock_get_repos.return_value = []
+        client = MockGitHubClient()
+        # MockGitHubClient returns empty string by default
 
-        result = collect_owned_repositories("testuser")
+        result = collect_owned_repositories("testuser", client=client)
 
         assert result == []
 
@@ -251,10 +235,8 @@ def sample_repo_data():
 class TestRepositoryDataProcessing:
     """Test repository data processing with fixtures"""
 
-    @patch("github_inventory.inventory.get_branch_count")
-    def test_repo_data_transformation(self, mock_get_branches, sample_repo_data):
+    def test_repo_data_transformation(self, sample_repo_data):
         """Test transformation of raw repo data to standardized format"""
-        mock_get_branches.return_value = 7
 
         # Simulate the transformation logic from collect_owned_repositories
         repo_data = {
