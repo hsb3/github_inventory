@@ -58,7 +58,10 @@ RUN mkdir -p /tmp/uv-cache /home/vscode/.claude && \
     chown -R vscode:vscode /tmp/uv-cache /workspace /home/vscode/.claude
 
 # Set up git safe directory (for when mounted)
-RUN git config --global --add safe.directory /workspace
+RUN git config --global --add safe.directory /workspaces/github_inventory
+
+# Install Claude Code as root (needs global permissions)
+RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
 
 # Switch to vscode user for remaining setup
 USER vscode
@@ -71,9 +74,6 @@ RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/
     -a "source /usr/share/doc/fzf/examples/completion.zsh" \
     -a "export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.bash_history" \
     -x
-
-# Install Claude Code
-RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
 
 # Copy Claude setup script
 COPY setup-claude.sh /usr/local/bin/

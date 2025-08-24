@@ -8,6 +8,8 @@ This directory contains documentation and example outputs for the GitHub Invento
 
 - **[CONTRIBUTING.md](../CONTRIBUTING.md)** - Guidelines for submitting issues and pull requests
 - **[GITHUB_CLI.md](GITHUB_CLI.md)** - GitHub CLI setup and authentication guide
+- **[devcontainer.md](devcontainer.md)** - Dev Container configuration and setup guide
+- **[github_workflows.md](github_workflows.md)** - GitHub Actions workflow documentation
 
 ### Example Output
 
@@ -57,7 +59,7 @@ The `README.md` files contain:
 
 ## CSV Data Format
 
-### repos.csv columns:
+### repos.csv columns
 
 - `name` - Repository name
 - `description` - Repository description
@@ -71,7 +73,7 @@ The `README.md` files contain:
 - `primary_language` - Main programming language
 - `size` - Repository size in KB
 
-### starred_repos.csv columns:
+### starred_repos.csv columns
 
 - `name` - Repository name
 - `full_name` - Owner/repository format
@@ -88,7 +90,7 @@ The `README.md` files contain:
 
 ## Usage Examples
 
-### Analyze a specific user:
+### Analyze a specific user
 
 ```bash
 gh-inventory --user octocat
@@ -96,19 +98,19 @@ gh-inventory --user octocat
 
 Creates: `docs/octocat/README.md`, `docs/octocat/repos.csv`, `docs/octocat/starred_repos.csv`
 
-### Limit results for large accounts:
+### Limit results for large accounts
 
 ```bash
 gh-inventory --user sindresorhus --limit 50
 ```
 
-### Generate only CSV data:
+### Generate only CSV data
 
 ```bash
 gh-inventory --user hsb3 --no-report
 ```
 
-### Batch processing multiple users:
+### Batch processing multiple users
 
 ```bash
 gh-inventory --batch config_example.yaml

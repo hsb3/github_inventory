@@ -13,11 +13,11 @@ CLI tool for generating comprehensive GitHub repository inventories and reports
 
 ## Key Features
 
-• **Repository Analysis** - Analyzes owned and starred repositories with detailed metadata
-• **Professional Reports** - Generates Markdown reports with statistics and language breakdowns
-• **Batch Processing** - Process multiple GitHub accounts at once with configuration files
-• **CSV Export** - Export data for further analysis in spreadsheet tools
-• **Rate Limit Friendly** - Built-in limits for large accounts to avoid GitHub API limits
+- **Repository Analysis** - Analyzes owned and starred repositories with detailed metadata
+- **Professional Reports** - Generates Markdown reports with statistics and language breakdowns
+- **Batch Processing** - Process multiple GitHub accounts at once with configuration files
+- **CSV Export** - Export data for further analysis in spreadsheet tools
+- **Rate Limit Friendly** - Built-in limits for large accounts to avoid GitHub API limits
 
 📊 **[View Example Report](docs/output_example/README.md)** - See what the generated report looks like
 
