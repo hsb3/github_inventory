@@ -65,7 +65,7 @@ class PathManager:
             f"docs/{default_username}/",
             "github_inventory_detailed.csv",
             "starred_repos.csv",
-            "github_inventory_report.md"
+            "github_inventory_report.md",
         ]
         return any(pattern in path for pattern in default_patterns)
 
@@ -103,7 +103,9 @@ def handle_batch_processing(args) -> None:
     run_batch_processing(configs)
 
 
-def collect_repository_data(args, path_manager: PathManager) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def collect_repository_data(
+    args, path_manager: PathManager
+) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """Collect owned and starred repository data"""
     owned_repos = []
     starred_repos = []
@@ -175,7 +177,12 @@ def collect_repository_data(args, path_manager: PathManager) -> tuple[List[Dict[
     return owned_repos, starred_repos
 
 
-def generate_outputs(owned_repos: List[Dict[str, Any]], starred_repos: List[Dict[str, Any]], args, path_manager: PathManager) -> bool:
+def generate_outputs(
+    owned_repos: List[Dict[str, Any]],
+    starred_repos: List[Dict[str, Any]],
+    args,
+    path_manager: PathManager,
+) -> bool:
     """Generate markdown report and print summary"""
     success = True
     # Generate markdown report
@@ -240,15 +247,11 @@ def create_parser():
     path_manager = PathManager(default_username)
 
     # Default output paths
-    default_owned_csv = os.getenv(
-        "OWNED_REPOS_CSV", path_manager.get_owned_csv_path()
-    )
+    default_owned_csv = os.getenv("OWNED_REPOS_CSV", path_manager.get_owned_csv_path())
     default_starred_csv = os.getenv(
         "STARRED_REPOS_CSV", path_manager.get_starred_csv_path()
     )
-    default_report_md = os.getenv(
-        "REPORT_OUTPUT_MD", path_manager.get_report_md_path()
-    )
+    default_report_md = os.getenv("REPORT_OUTPUT_MD", path_manager.get_report_md_path())
 
     parser = argparse.ArgumentParser(
         description="GitHub Repository Inventory Tool",
@@ -450,7 +453,9 @@ def main():
         starred_repos = read_csv_data(args.starred_csv)
 
         if not owned_repos and not starred_repos:
-            print("Error: No existing CSV files found. Run without --report-only first.")
+            print(
+                "Error: No existing CSV files found. Run without --report-only first."
+            )
             sys.exit(1)
 
         success = generate_markdown_report(
