@@ -62,7 +62,8 @@ class CLIGitHubClient(GitHubClient):
                 ) from e
 
             # Raise GitHubCLIError with details
-            raise GitHubCLIError(cmd, stderr, e.returncode) from e
+            cmd_str = cmd if isinstance(cmd, str) else " ".join(cmd)
+            raise GitHubCLIError(cmd_str, stderr, e.returncode) from e
 
     def api_request(self, endpoint: str, method: str = "GET") -> str:
         """Make a direct API request via GitHub CLI
@@ -148,7 +149,7 @@ class APIGitHubClient(GitHubClient):
 
         try:
             with urllib.request.urlopen(request) as response:  # noqa: S310
-                return response.read().decode('utf-8')
+                return str(response.read().decode("utf-8"))
         except urllib.error.HTTPError as e:
             if e.code == 401:
                 raise AuthenticationError(
@@ -159,14 +160,10 @@ class APIGitHubClient(GitHubClient):
                     "GitHub API access forbidden. Check token permissions."
                 ) from e
             else:
-                error_body = e.read().decode('utf-8') if e.fp else ""
-                raise GitHubCLIError(
-                    f"API {endpoint}", error_body, e.code
-                ) from e
+                error_body = e.read().decode("utf-8") if e.fp else ""
+                raise GitHubCLIError(f"API {endpoint}", error_body, e.code) from e
         except urllib.error.URLError as e:
-            raise GitHubCLIError(
-                f"API {endpoint}", str(e), -1
-            ) from e
+            raise GitHubCLIError(f"API {endpoint}", str(e), -1) from e
 
 
 class MockGitHubClient(GitHubClient):
@@ -200,8 +197,7 @@ class MockGitHubClient(GitHubClient):
 
 
 def create_github_client(
-    client_type: str = "cli",
-    github_token: Optional[str] = None
+    client_type: str = "cli", github_token: Optional[str] = None
 ) -> GitHubClient:
     """Factory function to create GitHub client
 

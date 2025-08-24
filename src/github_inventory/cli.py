@@ -110,9 +110,7 @@ def handle_batch_processing(args) -> None:
     run_batch_processing(configs)
 
 
-def collect_repository_data(
-    args, path_manager: PathManager, client=None
-) -> tuple:
+def collect_repository_data(args, path_manager: PathManager, client=None) -> tuple:
     """Collect owned and starred repository data"""
     owned_repos = []
     starred_repos = []
@@ -510,7 +508,9 @@ def main():
     except (ValueError, AuthenticationError) as e:
         print(f"❌ Client setup error: {e}")
         if args.client_type == "api" and not args.github_token:
-            print("Please provide a GitHub token with --github-token when using --client-type=api")
+            print(
+                "Please provide a GitHub token with --github-token when using --client-type=api"
+            )
         sys.exit(1)
 
     # Collect repository data with error handling

@@ -9,7 +9,6 @@ import tempfile
 
 import pytest
 
-from github_inventory.exceptions import GitHubCLIError
 from github_inventory.github_client import MockGitHubClient
 from github_inventory.inventory import (
     collect_owned_repositories,
@@ -28,7 +27,7 @@ class TestGitHubCLICommands:
         """Test successful GitHub CLI command execution"""
         client = MockGitHubClient()
         client.set_response("gh repo list", "test output")
-        
+
         result = run_gh_command("gh repo list", client)
 
         assert result == "test output"
@@ -120,7 +119,7 @@ class TestRepositoryCollection:
                 "diskUsage": 1024,
             }
         ]
-        
+
         client = MockGitHubClient()
         client.set_response("gh repo list", json.dumps(mock_repos))
         client.set_response("gh api repos/testuser/test-repo/branches", "3")

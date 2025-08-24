@@ -27,7 +27,10 @@ class GitHubCLIError(GitHubInventoryError):
     """Raised when GitHub CLI commands fail"""
 
     def __init__(
-        self, command: str, stderr: Optional[str] = None, exit_code: Optional[int] = None
+        self,
+        command: str,
+        stderr: Optional[str] = None,
+        exit_code: Optional[int] = None,
     ) -> None:
         message = f"GitHub CLI command failed: {command}"
         super().__init__(message, stderr)

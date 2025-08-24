@@ -10,7 +10,6 @@ from datetime import datetime
 from typing import Optional
 
 from .exceptions import (
-    AuthenticationError,
     DataProcessingError,
     GitHubCLIError,
 )
@@ -108,7 +107,9 @@ def format_date(date_str):
         return date_str
 
 
-def collect_owned_repositories(username, limit=None, client: Optional[GitHubClient] = None):
+def collect_owned_repositories(
+    username, limit=None, client: Optional[GitHubClient] = None
+):
     """Process all repositories and gather detailed information"""
     repos = get_repo_list(username, limit, client)
     if not repos:
@@ -205,7 +206,9 @@ def get_starred_repos(username=None, limit=None, client: Optional[GitHubClient] 
         ) from e
 
 
-def collect_starred_repositories(username=None, limit=None, client: Optional[GitHubClient] = None):
+def collect_starred_repositories(
+    username=None, limit=None, client: Optional[GitHubClient] = None
+):
     """Process all starred repositories and gather detailed information"""
     repos = get_starred_repos(username, limit, client)
     if not repos:
