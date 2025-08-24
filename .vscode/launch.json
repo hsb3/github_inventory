@@ -3,11 +3,11 @@
   "configurations": [
     {
       "name": "Debug CLI",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/src/github_inventory/cli.py",
       "args": [
-        "--user", "hsb3",
+        "--user", "octocat",
         "--owned-only",
         "--no-report"
       ],
@@ -19,11 +19,11 @@
     },
     {
       "name": "Debug CLI (Full Scan)",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/src/github_inventory/cli.py",
       "args": [
-        "--user", "hsb3",
+        "--user", "octocat",
         "--limit", "10"
       ],
       "console": "integratedTerminal",
@@ -34,7 +34,7 @@
     },
     {
       "name": "Debug Batch Mode",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/src/github_inventory/cli.py",
       "args": [
@@ -48,7 +48,7 @@
     },
     {
       "name": "Debug Tests",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "pytest",
       "args": [
@@ -63,7 +63,7 @@
     },
     {
       "name": "Debug Current Test File",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "pytest",
       "args": [
