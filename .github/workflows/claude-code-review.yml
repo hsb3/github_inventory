@@ -4,11 +4,12 @@ on:
   pull_request:
     types: [opened, synchronize]
     # Optional: Only run on specific file changes
-    # paths:
-    #   - "src/**/*.ts"
-    #   - "src/**/*.tsx"
-    #   - "src/**/*.js"
-    #   - "src/**/*.jsx"
+    paths:
+      - "src/**/*.py"
+      - "tests/**/*.py"
+      - "pyproject.toml"
+      - "Makefile"
+      - ".pre-commit-config.yaml"
 
 jobs:
   claude-review:
@@ -21,9 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
+      pull-requests: write
       issues: read
       id-token: write
+      actions: read
 
     steps:
       - name: Checkout repository
@@ -42,14 +44,17 @@ jobs:
 
           # Direct prompt for automated review (no @claude mention needed)
           direct_prompt: |
-            Please review this pull request and provide feedback on:
-            - Code quality and best practices
-            - Potential bugs or issues
-            - Performance considerations
-            - Security concerns
-            - Test coverage
+            Review this Python CLI tool pull request focusing on:
+            - Code quality following PEP 8 and project conventions
+            - Proper use of type hints and mypy compliance
+            - Test coverage for new functionality
+            - Security considerations for CLI input handling
+            - Performance implications for GitHub API calls
+            - Proper error handling and user feedback
+            - Documentation updates if needed
 
-            Be constructive and helpful in your feedback.
+            Run the test suite and linting tools to verify code quality.
+            Be constructive and suggest specific improvements.
 
           # Optional: Use sticky comments to make Claude reuse the same comment on subsequent pushes to the same PR
           # use_sticky_comment: true
@@ -69,7 +74,7 @@ jobs:
           #   'Please provide a thorough code review focusing on our coding standards and best practices.' }}
 
           # Optional: Add specific tools for running tests or linting
-          # allowed_tools: "Bash(npm run test),Bash(npm run lint),Bash(npm run typecheck)"
+          allowed_tools: "Bash(make test),Bash(make lint),Bash(make typecheck),Bash(pytest tests/ -v),Bash(ruff check src/),Bash(mypy src/)"
 
           # Optional: Skip review for certain conditions
           # if: |
