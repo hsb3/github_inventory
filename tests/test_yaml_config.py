@@ -6,7 +6,6 @@ Tests for YAML configuration functionality
 import json
 import tempfile
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 from pydantic import ValidationError
@@ -17,6 +16,7 @@ from github_inventory.batch import (
     get_default_configs,
     load_config_from_file,
 )
+from github_inventory.exceptions import ConfigurationError
 
 
 class TestYAMLConfiguration:
@@ -194,7 +194,7 @@ class TestConfigurationErrorHandling:
         finally:
             Path(temp_file_path).unlink(missing_ok=True)
 
-    def test_invalid_yaml_syntax(self, capsys):
+    def test_invalid_yaml_syntax(self):
         """Test handling of invalid YAML syntax"""
         invalid_yaml = """
 configs:
@@ -209,17 +209,16 @@ configs:
             temp_file_path = temp_file.name
 
         try:
-            with pytest.raises(SystemExit):
+            with pytest.raises(ConfigurationError) as exc_info:
                 load_config_from_file(temp_file_path)
 
-            captured = capsys.readouterr()
-            assert "Error loading configuration file" in captured.out
-            assert "Invalid YAML format" in captured.out
+            # Error is now in the exception message
+            assert "Invalid YAML format" in str(exc_info.value)
 
         finally:
             Path(temp_file_path).unlink(missing_ok=True)
 
-    def test_invalid_json_syntax(self, capsys):
+    def test_invalid_json_syntax(self):
         """Test handling of invalid JSON syntax"""
         invalid_json = '{"configs": [{"account": "user1", "limit": invalid}]}'
 
@@ -230,17 +229,16 @@ configs:
             temp_file_path = temp_file.name
 
         try:
-            with pytest.raises(SystemExit):
+            with pytest.raises(ConfigurationError) as exc_info:
                 load_config_from_file(temp_file_path)
 
-            captured = capsys.readouterr()
-            assert "Error loading configuration file" in captured.out
-            assert "Invalid JSON format" in captured.out
+            # Error is now in the exception message
+            assert "Invalid JSON format" in str(exc_info.value)
 
         finally:
             Path(temp_file_path).unlink(missing_ok=True)
 
-    def test_empty_yaml_file(self, capsys):
+    def test_empty_yaml_file(self):
         """Test handling of empty YAML file"""
         with tempfile.NamedTemporaryFile(
             mode="w", delete=False, suffix=".yaml", encoding="utf-8"
@@ -249,17 +247,16 @@ configs:
             temp_file_path = temp_file.name
 
         try:
-            with pytest.raises(SystemExit):
+            with pytest.raises(ConfigurationError) as exc_info:
                 load_config_from_file(temp_file_path)
 
-            captured = capsys.readouterr()
-            assert "Error loading configuration file" in captured.out
-            assert "Empty or invalid YAML file" in captured.out
+            # Error is now in the exception message
+            assert "Empty or invalid YAML file" in str(exc_info.value)
 
         finally:
             Path(temp_file_path).unlink(missing_ok=True)
 
-    def test_yaml_with_null_content(self, capsys):
+    def test_yaml_with_null_content(self):
         """Test handling of YAML file that parses to None"""
         with tempfile.NamedTemporaryFile(
             mode="w", delete=False, suffix=".yaml", encoding="utf-8"
@@ -268,17 +265,16 @@ configs:
             temp_file_path = temp_file.name
 
         try:
-            with pytest.raises(SystemExit):
+            with pytest.raises(ConfigurationError) as exc_info:
                 load_config_from_file(temp_file_path)
 
-            captured = capsys.readouterr()
-            assert "Error loading configuration file" in captured.out
-            assert "Empty or invalid YAML file" in captured.out
+            # Error is now in the exception message
+            assert "Empty or invalid YAML file" in str(exc_info.value)
 
         finally:
             Path(temp_file_path).unlink(missing_ok=True)
 
-    def test_non_dict_content(self, capsys):
+    def test_non_dict_content(self):
         """Test handling of non-dictionary content"""
         yaml_content = """
 - account: user1
@@ -292,13 +288,12 @@ configs:
             temp_file_path = temp_file.name
 
         try:
-            with pytest.raises(SystemExit):
+            with pytest.raises(ConfigurationError) as exc_info:
                 load_config_from_file(temp_file_path)
 
-            captured = capsys.readouterr()
-            assert "Error loading configuration file" in captured.out
-            assert "Configuration file must contain a JSON/YAML object" in captured.out
-            assert "got list" in captured.out
+            # Error is now in the exception message
+            assert "must contain a JSON/YAML object" in str(exc_info.value)
+            assert "got list" in str(exc_info.value)
 
         finally:
             Path(temp_file_path).unlink(missing_ok=True)
@@ -307,8 +302,7 @@ configs:
 class TestConfigurationValidation:
     """Test Pydantic model validation of configuration structures"""
 
-    @patch("sys.exit")
-    def test_missing_configs_key(self, mock_exit):
+    def test_missing_configs_key(self):
         """Test handling of missing 'configs' key"""
         yaml_content = """
 accounts:
@@ -322,14 +316,14 @@ accounts:
             temp_file_path = temp_file.name
 
         try:
-            load_config_from_file(temp_file_path)
-            mock_exit.assert_called_once_with(1)
+            with pytest.raises(ConfigurationError) as exc_info:
+                load_config_from_file(temp_file_path)
+            assert "validation error" in str(exc_info.value)
 
         finally:
             Path(temp_file_path).unlink(missing_ok=True)
 
-    @patch("sys.exit")
-    def test_missing_account_field(self, mock_exit):
+    def test_missing_account_field(self):
         """Test handling of missing 'account' field"""
         yaml_content = """
 configs:
@@ -343,14 +337,14 @@ configs:
             temp_file_path = temp_file.name
 
         try:
-            load_config_from_file(temp_file_path)
-            mock_exit.assert_called_once_with(1)
+            with pytest.raises(ConfigurationError) as exc_info:
+                load_config_from_file(temp_file_path)
+            assert "validation error" in str(exc_info.value)
 
         finally:
             Path(temp_file_path).unlink(missing_ok=True)
 
-    @patch("sys.exit")
-    def test_invalid_limit_type(self, mock_exit):
+    def test_invalid_limit_type(self):
         """Test handling of invalid limit type"""
         yaml_content = """
 configs:
@@ -365,8 +359,9 @@ configs:
             temp_file_path = temp_file.name
 
         try:
-            load_config_from_file(temp_file_path)
-            mock_exit.assert_called_once_with(1)
+            with pytest.raises(ConfigurationError) as exc_info:
+                load_config_from_file(temp_file_path)
+            assert "validation error" in str(exc_info.value)
 
         finally:
             Path(temp_file_path).unlink(missing_ok=True)
@@ -675,7 +670,7 @@ def test_file_format_detection(file_extension):
         ('"just a string"', "Configuration file must contain a JSON/YAML object"),
     ],
 )
-def test_error_cases_parametrized(content, expected_error, capsys):
+def test_error_cases_parametrized(content, expected_error):
     """Test various error cases with parametrized inputs"""
     # Determine file extension based on content
     extension = (
@@ -691,11 +686,10 @@ def test_error_cases_parametrized(content, expected_error, capsys):
         temp_file_path = temp_file.name
 
     try:
-        with pytest.raises(SystemExit):
+        with pytest.raises(ConfigurationError) as exc_info:
             load_config_from_file(temp_file_path)
 
-        captured = capsys.readouterr()
-        assert expected_error in captured.out
+        assert expected_error in str(exc_info.value)
 
     finally:
         Path(temp_file_path).unlink(missing_ok=True)

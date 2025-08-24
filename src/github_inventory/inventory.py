@@ -19,13 +19,13 @@ from .exceptions import (
 
 def run_gh_command(cmd):
     """Run a GitHub CLI command and return the result
-    
+
     Args:
         cmd: GitHub CLI command to run (string or list of args)
-        
+
     Returns:
         str: Command output
-        
+
     Raises:
         GitHubCLIError: When the GitHub CLI command fails
         AuthenticationError: When authentication is required but missing
@@ -39,27 +39,27 @@ def run_gh_command(cmd):
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
         stderr = e.stderr.strip() if e.stderr else ""
-        
+
         # Check for common authentication errors
         if "authentication" in stderr.lower() or "login" in stderr.lower():
             raise AuthenticationError(
                 "GitHub CLI authentication required. Please run 'gh auth login'"
             ) from e
-        
+
         # Raise GitHubCLIError with details
         raise GitHubCLIError(cmd, stderr, e.returncode) from e
 
 
 def get_repo_list(username, limit=None):
     """Get list of all repositories for a user
-    
+
     Args:
         username: GitHub username
         limit: Maximum number of repositories to fetch
-        
+
     Returns:
         list: List of repository data dictionaries
-        
+
     Raises:
         GitHubCLIError: When GitHub CLI command fails
         AuthenticationError: When authentication is required
@@ -81,18 +81,17 @@ def get_repo_list(username, limit=None):
         return repos
     except json.JSONDecodeError as e:
         raise DataProcessingError(
-            "JSON parsing of repository list",
-            f"Failed to parse GitHub CLI output: {e}"
+            "JSON parsing of repository list", f"Failed to parse GitHub CLI output: {e}"
         ) from e
 
 
 def get_branch_count(owner, repo_name):
     """Get the number of branches for a repository
-    
+
     Args:
         owner: Repository owner username
         repo_name: Repository name
-        
+
     Returns:
         int or str: Number of branches, or "unknown" if unable to determine
     """
@@ -166,14 +165,14 @@ def collect_owned_repositories(username, limit=None):
 
 def get_starred_repos(username=None, limit=None):
     """Get list of all starred repositories
-    
+
     Args:
         username: GitHub username (None for authenticated user)
         limit: Maximum number of starred repositories to fetch
-        
+
     Returns:
         list: List of starred repository data dictionaries
-        
+
     Raises:
         GitHubCLIError: When GitHub CLI command fails
         AuthenticationError: When authentication is required
@@ -213,7 +212,7 @@ def get_starred_repos(username=None, limit=None):
     except json.JSONDecodeError as e:
         raise DataProcessingError(
             "JSON parsing of starred repositories",
-            f"Failed to parse GitHub CLI output: {e}\nRaw output: {output[:500]}..."
+            f"Failed to parse GitHub CLI output: {e}\nRaw output: {output[:500]}...",
         ) from e
 
 

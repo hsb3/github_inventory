@@ -24,7 +24,9 @@ class GitHubInventoryError(Exception):
 class GitHubCLIError(GitHubInventoryError):
     """Raised when GitHub CLI commands fail"""
 
-    def __init__(self, command: str, stderr: str | None = None, exit_code: int | None = None) -> None:
+    def __init__(
+        self, command: str, stderr: str | None = None, exit_code: int | None = None
+    ) -> None:
         message = f"GitHub CLI command failed: {command}"
         super().__init__(message, stderr)
         self.command = command
@@ -35,10 +37,16 @@ class GitHubCLIError(GitHubInventoryError):
 class ConfigurationError(GitHubInventoryError):
     """Raised when configuration is invalid or cannot be loaded"""
 
-    def __init__(self, config_file: str | None = None, message: str = "Configuration error") -> None:
-        if config_file:
-            message = f"Configuration error in {config_file}"
-        super().__init__(message)
+    def __init__(
+        self, config_file: str | None = None, message: str = "Configuration error"
+    ) -> None:
+        if config_file and message == "Configuration error":
+            full_message = f"Configuration error in {config_file}"
+        elif config_file:
+            full_message = f"Configuration error in {config_file}: {message}"
+        else:
+            full_message = message
+        super().__init__(full_message)
         self.config_file = config_file
 
 
@@ -61,7 +69,9 @@ class AuthenticationError(GitHubInventoryError):
 class FileOperationError(GitHubInventoryError):
     """Raised when file operations fail"""
 
-    def __init__(self, filepath: str, operation: str, details: str | None = None) -> None:
+    def __init__(
+        self, filepath: str, operation: str, details: str | None = None
+    ) -> None:
         message = f"File operation failed: {operation} on {filepath}"
         super().__init__(message, details)
         self.filepath = filepath

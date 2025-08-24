@@ -16,7 +16,6 @@ from .batch import get_default_configs, load_config_from_file, run_batch_process
 from .exceptions import (
     AuthenticationError,
     ConfigurationError,
-    DataProcessingError,
     GitHubCLIError,
     GitHubInventoryError,
 )
@@ -283,7 +282,7 @@ def main():
         except ConfigurationError as e:
             print(f"❌ Configuration error: {e}")
             sys.exit(1)
-        except RuntimeError as e:
+        except RuntimeError:
             # Batch processing failures are already logged, just exit
             sys.exit(1)
         except GitHubInventoryError as e:
