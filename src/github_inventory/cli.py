@@ -25,6 +25,7 @@ from .inventory import (
     collect_starred_repositories,
     write_to_csv,
 )
+from .github_client import create_github_client
 from .report import generate_markdown_report, read_csv_data
 
 
@@ -110,7 +111,7 @@ def handle_batch_processing(args) -> None:
 
 
 def collect_repository_data(
-    args, path_manager: PathManager
+    args, path_manager: PathManager, client=None
 ) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """Collect owned and starred repository data"""
     owned_repos = []
@@ -121,7 +122,7 @@ def collect_repository_data(
         print(f"\nCollecting owned repositories for user: {args.user}")
         print("-" * 50)
 
-        owned_repos = collect_owned_repositories(args.user, args.limit)
+        owned_repos = collect_owned_repositories(args.user, args.limit, client)
 
         if owned_repos:
             owned_headers = [
@@ -147,7 +148,7 @@ def collect_repository_data(
         print("\nCollecting starred repositories...")
         print("-" * 50)
 
-        starred_repos = collect_starred_repositories(args.user, args.limit)
+        starred_repos = collect_starred_repositories(args.user, args.limit, client)
 
         if starred_repos:
             starred_headers = [
@@ -361,6 +362,19 @@ Examples:
         help="Run batch processing with custom configuration file (JSON/YAML)",
     )
 
+    # GitHub client options
+    parser.add_argument(
+        "--client-type",
+        choices=["cli", "api"],
+        default="cli",
+        help="GitHub client type to use: 'cli' (default) uses GitHub CLI, 'api' makes direct API calls",
+    )
+
+    parser.add_argument(
+        "--github-token",
+        help="GitHub personal access token (required when using --client-type=api)",
+    )
+
     return parser
 
 
@@ -490,9 +504,18 @@ def main():
             print(f"❌ Error generating report: {e}")
             sys.exit(1)
 
+    # Create GitHub client
+    try:
+        client = create_github_client(args.client_type, args.github_token)
+    except (ValueError, AuthenticationError) as e:
+        print(f"❌ Client setup error: {e}")
+        if args.client_type == "api" and not args.github_token:
+            print("Please provide a GitHub token with --github-token when using --client-type=api")
+        sys.exit(1)
+
     # Collect repository data with error handling
     try:
-        owned_repos, starred_repos = collect_repository_data(args, path_manager)
+        owned_repos, starred_repos = collect_repository_data(args, path_manager, client)
     except AuthenticationError as e:
         print(f"❌ {e}")
         print("Please run 'gh auth login' and try again.")
