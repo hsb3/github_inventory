@@ -9,6 +9,7 @@ import os
 import platform
 import subprocess
 import sys
+from typing import Any, Dict, List, Optional
 
 from dotenv import load_dotenv
 
@@ -21,6 +22,59 @@ from .inventory import (
 from .report import generate_markdown_report, read_csv_data
 
 
+class PathManager:
+    """Centralized path management for CLI operations"""
+
+    def __init__(self, username: str):
+        self.username = username
+        self.output_base = self._get_output_base()
+
+    def _get_output_base(self) -> str:
+        """Determine output directory based on installation type"""
+        if os.path.exists("pyproject.toml") and os.path.exists("src/github_inventory"):
+            # Development mode - use relative paths
+            return "docs"
+        else:
+            # Global install - use home directory
+            output_base = os.path.expanduser("~/.ghscan")
+            os.makedirs(output_base, exist_ok=True)
+            return output_base
+
+    def get_owned_csv_path(self, custom_path: Optional[str] = None) -> str:
+        """Get path for owned repositories CSV"""
+        if custom_path and not self._is_default_path(custom_path):
+            return custom_path
+        return f"{self.output_base}/{self.username}/repos.csv"
+
+    def get_starred_csv_path(self, custom_path: Optional[str] = None) -> str:
+        """Get path for starred repositories CSV"""
+        if custom_path and not self._is_default_path(custom_path):
+            return custom_path
+        return f"{self.output_base}/{self.username}/starred_repos.csv"
+
+    def get_report_md_path(self, custom_path: Optional[str] = None) -> str:
+        """Get path for markdown report"""
+        if custom_path and not self._is_default_path(custom_path):
+            return custom_path
+        return f"{self.output_base}/{self.username}/README.md"
+
+    def _is_default_path(self, path: str) -> bool:
+        """Check if path is a default path pattern that should be overridden"""
+        default_username = os.getenv("GITHUB_USERNAME", "hsb3")
+        default_patterns = [
+            f"docs/{default_username}/",
+            "github_inventory_detailed.csv",
+            "starred_repos.csv",
+            "github_inventory_report.md"
+        ]
+        return any(pattern in path for pattern in default_patterns)
+
+    def ensure_output_directory(self, file_path: str) -> None:
+        """Ensure the output directory for a file path exists"""
+        output_dir = os.path.dirname(file_path) or "."
+        os.makedirs(output_dir, exist_ok=True)
+
+
 def get_output_base():
     """Determine output directory based on installation type"""
     if os.path.exists("pyproject.toml") and os.path.exists("src/github_inventory"):
@@ -31,6 +85,125 @@ def get_output_base():
         output_base = os.path.expanduser("~/.ghscan")
         os.makedirs(output_base, exist_ok=True)
         return output_base
+
+
+def handle_batch_processing(args) -> None:
+    """Handle batch processing mode"""
+    if args.batch and args.config:
+        print("Error: Cannot use --batch and --config together")
+        sys.exit(1)
+
+    if args.batch:
+        print("Running batch processing with default configurations...")
+        configs = get_default_configs()
+    else:
+        print(f"Running batch processing with config file: {args.config}")
+        configs = load_config_from_file(args.config)
+
+    run_batch_processing(configs)
+
+
+def collect_repository_data(args, path_manager: PathManager) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """Collect owned and starred repository data"""
+    owned_repos = []
+    starred_repos = []
+
+    # Collect owned repositories
+    if not args.starred_only:
+        print(f"\nCollecting owned repositories for user: {args.user}")
+        print("-" * 50)
+
+        owned_repos = collect_owned_repositories(args.user, args.limit)
+
+        if owned_repos:
+            owned_headers = [
+                "name",
+                "description",
+                "url",
+                "visibility",
+                "is_fork",
+                "creation_date",
+                "last_update_date",
+                "default_branch",
+                "number_of_branches",
+                "primary_language",
+                "size",
+            ]
+            owned_csv_path = path_manager.get_owned_csv_path(args.owned_csv)
+            write_to_csv(owned_repos, owned_csv_path, owned_headers)
+        else:
+            print("Failed to collect owned repositories")
+
+    # Collect starred repositories
+    if not args.owned_only:
+        print("\nCollecting starred repositories...")
+        print("-" * 50)
+
+        starred_repos = collect_starred_repositories(args.user, args.limit)
+
+        if starred_repos:
+            starred_headers = [
+                "name",
+                "full_name",
+                "owner",
+                "description",
+                "url",
+                "visibility",
+                "is_fork",
+                "creation_date",
+                "last_update_date",
+                "last_push_date",
+                "default_branch",
+                "number_of_branches",
+                "primary_language",
+                "size",
+                "stars",
+                "forks",
+                "watchers",
+                "open_issues",
+                "license",
+                "topics",
+                "homepage",
+                "archived",
+                "disabled",
+            ]
+            starred_csv_path = path_manager.get_starred_csv_path(args.starred_csv)
+            write_to_csv(starred_repos, starred_csv_path, starred_headers)
+        else:
+            print("Failed to collect starred repositories")
+
+    return owned_repos, starred_repos
+
+
+def generate_outputs(owned_repos: List[Dict[str, Any]], starred_repos: List[Dict[str, Any]], args, path_manager: PathManager) -> bool:
+    """Generate markdown report and print summary"""
+    success = True
+    # Generate markdown report
+    if not args.no_report and (owned_repos or starred_repos):
+        print("\nGenerating markdown report...")
+        print("-" * 50)
+
+        report_path = path_manager.get_report_md_path(args.report_md)
+        success = generate_markdown_report(
+            owned_repos=owned_repos,
+            starred_repos=starred_repos,
+            username=args.user,
+            output_file=report_path,
+            limit_applied=args.limit,
+        )
+
+        if not success:
+            print("Failed to generate markdown report")
+            return False
+
+    # Print summary
+    if owned_repos or starred_repos:
+        print_summary(owned_repos, starred_repos)
+        print("\n✅ GitHub inventory completed successfully!")
+    else:
+        print("❌ No data collected. Please check your GitHub CLI authentication.")
+        return False
+    return success
 
 
 def open_directory(directory_path):
@@ -63,25 +236,25 @@ def create_parser():
     # Get default values from environment or fallback values
     default_username = os.getenv("GITHUB_USERNAME", "hsb3")
 
-    # Determine output directory
-    output_base = get_output_base()
+    # Create path manager for default paths
+    path_manager = PathManager(default_username)
 
     # Default output paths
     default_owned_csv = os.getenv(
-        "OWNED_REPOS_CSV", f"{output_base}/{default_username}/repos.csv"
+        "OWNED_REPOS_CSV", path_manager.get_owned_csv_path()
     )
     default_starred_csv = os.getenv(
-        "STARRED_REPOS_CSV", f"{output_base}/{default_username}/starred_repos.csv"
+        "STARRED_REPOS_CSV", path_manager.get_starred_csv_path()
     )
     default_report_md = os.getenv(
-        "REPORT_OUTPUT_MD", f"{output_base}/{default_username}/README.md"
+        "REPORT_OUTPUT_MD", path_manager.get_report_md_path()
     )
 
     parser = argparse.ArgumentParser(
         description="GitHub Repository Inventory Tool",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=f"""
-Output Location: {output_base}/
+Output Location: {path_manager.output_base}/
 
 Examples:
   # Generate full inventory and report
@@ -164,7 +337,7 @@ Examples:
     parser.add_argument(
         "--open",
         action="store_true",
-        help=f"Open the output directory ({output_base}) in your default file manager",
+        help=f"Open the output directory ({path_manager.output_base}) in your default file manager",
     )
 
     # Batch processing arguments
@@ -250,8 +423,7 @@ def main():
 
     # Handle --open command
     if args.open:
-        output_base = get_output_base()
-        open_directory(output_base)
+        open_directory(get_output_base())
         return
 
     print("GitHub Repository Inventory Tool")
@@ -259,56 +431,26 @@ def main():
 
     # Handle batch processing mode
     if args.batch or args.config:
-        if args.batch and args.config:
-            print("Error: Cannot use --batch and --config together")
-            sys.exit(1)
-
-        if args.batch:
-            print("Running batch processing with default configurations...")
-            configs = get_default_configs()
-        else:
-            print(f"Running batch processing with config file: {args.config}")
-            configs = load_config_from_file(args.config)
-
-        run_batch_processing(configs)
+        handle_batch_processing(args)
         return
 
-    owned_repos = []
-    starred_repos = []
-
-    # Update paths to use the current username (always use docs/{username}/ structure)
-    default_username = os.getenv("GITHUB_USERNAME", "hsb3")
-    if (
-        args.owned_csv == f"docs/{default_username}/repos.csv"
-        or args.owned_csv.endswith("github_inventory_detailed.csv")
-    ):
-        args.owned_csv = f"docs/{args.user}/repos.csv"
-    if (
-        args.starred_csv == f"docs/{default_username}/starred_repos.csv"
-        or args.starred_csv.endswith("starred_repos.csv")
-    ):
-        args.starred_csv = f"docs/{args.user}/starred_repos.csv"
-    if (
-        args.report_md == f"docs/{default_username}/README.md"
-        or args.report_md.endswith("github_inventory_report.md")
-    ):
-        args.report_md = f"docs/{args.user}/README.md"
-
+    # Create path manager for current user
+    path_manager = PathManager(args.user)
+    # Update argument paths using path manager
+    args.owned_csv = path_manager.get_owned_csv_path(args.owned_csv)
+    args.starred_csv = path_manager.get_starred_csv_path(args.starred_csv)
+    args.report_md = path_manager.get_report_md_path(args.report_md)
     # Ensure output directory exists
-    output_dir = os.path.dirname(args.owned_csv) or "."
-    os.makedirs(output_dir, exist_ok=True)
+    path_manager.ensure_output_directory(args.owned_csv)
 
     # Handle report-only mode
     if args.report_only:
         print("Generating report from existing CSV files...")
-
         owned_repos = read_csv_data(args.owned_csv)
         starred_repos = read_csv_data(args.starred_csv)
 
         if not owned_repos and not starred_repos:
-            print(
-                "Error: No existing CSV files found. Run without --report-only first."
-            )
+            print("Error: No existing CSV files found. Run without --report-only first.")
             sys.exit(1)
 
         success = generate_markdown_report(
@@ -323,92 +465,12 @@ def main():
             print_summary(owned_repos, starred_repos)
         sys.exit(0 if success else 1)
 
-    # Collect owned repositories
-    if not args.starred_only:
-        print(f"\nCollecting owned repositories for user: {args.user}")
-        print("-" * 50)
+    # Collect repository data
+    owned_repos, starred_repos = collect_repository_data(args, path_manager)
 
-        owned_repos = collect_owned_repositories(args.user, args.limit)
-
-        if owned_repos:
-            owned_headers = [
-                "name",
-                "description",
-                "url",
-                "visibility",
-                "is_fork",
-                "creation_date",
-                "last_update_date",
-                "default_branch",
-                "number_of_branches",
-                "primary_language",
-                "size",
-            ]
-            write_to_csv(owned_repos, args.owned_csv, owned_headers)
-        else:
-            print("Failed to collect owned repositories")
-
-    # Collect starred repositories
-    if not args.owned_only:
-        print("\nCollecting starred repositories...")
-        print("-" * 50)
-
-        starred_repos = collect_starred_repositories(args.user, args.limit)
-
-        if starred_repos:
-            starred_headers = [
-                "name",
-                "full_name",
-                "owner",
-                "description",
-                "url",
-                "visibility",
-                "is_fork",
-                "creation_date",
-                "last_update_date",
-                "last_push_date",
-                "default_branch",
-                "number_of_branches",
-                "primary_language",
-                "size",
-                "stars",
-                "forks",
-                "watchers",
-                "open_issues",
-                "license",
-                "topics",
-                "homepage",
-                "archived",
-                "disabled",
-            ]
-            write_to_csv(starred_repos, args.starred_csv, starred_headers)
-        else:
-            print("Failed to collect starred repositories")
-
-    # Generate markdown report
-    if not args.no_report and (owned_repos or starred_repos):
-        print("\nGenerating markdown report...")
-        print("-" * 50)
-
-        success = generate_markdown_report(
-            owned_repos=owned_repos,
-            starred_repos=starred_repos,
-            username=args.user,
-            output_file=args.report_md,
-            limit_applied=args.limit,
-        )
-
-        if not success:
-            print("Failed to generate markdown report")
-            sys.exit(1)
-
-    # Print summary
-    if owned_repos or starred_repos:
-        print_summary(owned_repos, starred_repos)
-        print("\n✅ GitHub inventory completed successfully!")
-    else:
-        print("❌ No data collected. Please check your GitHub CLI authentication.")
-        sys.exit(1)
+    # Generate outputs and exit with appropriate status
+    success = generate_outputs(owned_repos, starred_repos, args, path_manager)
+    sys.exit(0 if success else 1)
 
 
 if __name__ == "__main__":
