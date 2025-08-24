@@ -10,9 +10,14 @@ import platform
 import subprocess
 import sys
 
-from dotenv import load_dotenv
-
 from .batch import get_default_configs, load_config_from_file, run_batch_processing
+from .config import (
+    Config,
+    load_config as load_app_config,
+    validate_config,
+    ensure_output_directory,
+    update_paths_for_username,
+)
 from .inventory import (
     collect_owned_repositories,
     collect_starred_repositories,
@@ -57,25 +62,28 @@ def open_directory(directory_path):
 
 def create_parser():
     """Create the argument parser"""
-    # Load environment variables
-    load_dotenv()
-
-    # Get default values from environment or fallback values
-    default_username = os.getenv("GITHUB_USERNAME", "hsb3")
-
-    # Determine output directory
-    output_base = get_output_base()
-
-    # Default output paths
-    default_owned_csv = os.getenv(
-        "OWNED_REPOS_CSV", f"{output_base}/{default_username}/repos.csv"
-    )
-    default_starred_csv = os.getenv(
-        "STARRED_REPOS_CSV", f"{output_base}/{default_username}/starred_repos.csv"
-    )
-    default_report_md = os.getenv(
-        "REPORT_OUTPUT_MD", f"{output_base}/{default_username}/README.md"
-    )
+    # Load default configuration to get default values
+    try:
+        default_config = load_app_config()
+        default_username = default_config.username or "[required]"
+        output_base = default_config.output_base
+        
+        # Use default paths from config if username is available
+        if default_config.username:
+            default_owned_csv = default_config.owned_csv or f"{output_base}/{default_config.username}/repos.csv"
+            default_starred_csv = default_config.starred_csv or f"{output_base}/{default_config.username}/starred_repos.csv"
+            default_report_md = default_config.report_md or f"{output_base}/{default_config.username}/README.md"
+        else:
+            default_owned_csv = f"{output_base}/[username]/repos.csv"
+            default_starred_csv = f"{output_base}/[username]/starred_repos.csv"
+            default_report_md = f"{output_base}/[username]/README.md"
+    except Exception:
+        # Fallback if config loading fails
+        default_username = "[required]"
+        output_base = get_output_base()
+        default_owned_csv = f"{output_base}/[username]/repos.csv"
+        default_starred_csv = f"{output_base}/[username]/starred_repos.csv"
+        default_report_md = f"{output_base}/[username]/README.md"
 
     parser = argparse.ArgumentParser(
         description="GitHub Repository Inventory Tool",
@@ -85,13 +93,13 @@ Output Location: {output_base}/
 
 Examples:
   # Generate full inventory and report
-  ghscan --user hsb3
+  ghscan --user username
 
   # Generate only owned repositories
-  ghscan --user hsb3 --owned-only
+  ghscan --user username --owned-only
 
   # Generate only starred repositories
-  ghscan --user hsb3 --starred-only
+  ghscan --user username --starred-only
 
   # Generate markdown report from existing CSV files
   ghscan --report-only
@@ -100,7 +108,7 @@ Examples:
   ghscan --open
 
   # Custom output files
-  ghscan --user hsb3 --owned-csv my_repos.csv --starred-csv my_stars.csv
+  ghscan --user username --owned-csv my_repos.csv --starred-csv my_stars.csv
 
   # Batch processing with default accounts
   ghscan --batch
@@ -113,8 +121,8 @@ Examples:
     parser.add_argument(
         "--user",
         "-u",
-        default=default_username,
-        help=f"GitHub username (default: {default_username})",
+        default=None,
+        help="GitHub username (required, can be set via GITHUB_USERNAME env var)",
     )
 
     parser.add_argument(
@@ -273,37 +281,38 @@ def main():
         run_batch_processing(configs)
         return
 
+    # Load and validate configuration
+    try:
+        config = load_app_config(
+            username=args.user,
+            owned_csv=args.owned_csv,
+            starred_csv=args.starred_csv,
+            report_md=args.report_md
+        )
+        
+        # If username was provided via args, update paths accordingly
+        if args.user and args.user != config.username:
+            config = update_paths_for_username(config, args.user)
+        
+        validate_config(config)
+        ensure_output_directory(config)
+        
+    except ValueError as e:
+        print(f"Configuration Error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Unexpected configuration error: {e}")
+        sys.exit(1)
+
     owned_repos = []
     starred_repos = []
-
-    # Update paths to use the current username (always use docs/{username}/ structure)
-    default_username = os.getenv("GITHUB_USERNAME", "hsb3")
-    if (
-        args.owned_csv == f"docs/{default_username}/repos.csv"
-        or args.owned_csv.endswith("github_inventory_detailed.csv")
-    ):
-        args.owned_csv = f"docs/{args.user}/repos.csv"
-    if (
-        args.starred_csv == f"docs/{default_username}/starred_repos.csv"
-        or args.starred_csv.endswith("starred_repos.csv")
-    ):
-        args.starred_csv = f"docs/{args.user}/starred_repos.csv"
-    if (
-        args.report_md == f"docs/{default_username}/README.md"
-        or args.report_md.endswith("github_inventory_report.md")
-    ):
-        args.report_md = f"docs/{args.user}/README.md"
-
-    # Ensure output directory exists
-    output_dir = os.path.dirname(args.owned_csv) or "."
-    os.makedirs(output_dir, exist_ok=True)
 
     # Handle report-only mode
     if args.report_only:
         print("Generating report from existing CSV files...")
 
-        owned_repos = read_csv_data(args.owned_csv)
-        starred_repos = read_csv_data(args.starred_csv)
+        owned_repos = read_csv_data(config.owned_csv)
+        starred_repos = read_csv_data(config.starred_csv)
 
         if not owned_repos and not starred_repos:
             print(
@@ -381,7 +390,7 @@ def main():
                 "archived",
                 "disabled",
             ]
-            write_to_csv(starred_repos, args.starred_csv, starred_headers)
+            write_to_csv(starred_repos, config.starred_csv, starred_headers)
         else:
             print("Failed to collect starred repositories")
 
@@ -393,8 +402,8 @@ def main():
         success = generate_markdown_report(
             owned_repos=owned_repos,
             starred_repos=starred_repos,
-            username=args.user,
-            output_file=args.report_md,
+            username=config.username,
+            output_file=config.report_md,
             limit_applied=args.limit,
         )
 

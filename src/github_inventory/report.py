@@ -8,7 +8,7 @@ import csv
 import os
 from datetime import datetime
 
-from dotenv import load_dotenv
+from .config import load_config as load_app_config
 
 
 def read_csv_data(filename):
@@ -63,11 +63,13 @@ def create_owned_repos_table(repos_data, limit_applied=None):
     if not repos_data:
         return "No owned repository data found.\n\n"
 
-    # Load environment variables
-    load_dotenv()
-
-    # Get display limit from environment variable, default to 30
-    display_limit = int(os.getenv("REPORT_OWNED_LIMIT", "30"))
+    # Get display limit from configuration
+    try:
+        config = load_app_config()
+        display_limit = config.report_owned_limit
+    except Exception:
+        # Fallback if config fails
+        display_limit = 30
     if display_limit == -1:
         display_limit = len(repos_data)  # Show all repos
 
@@ -138,11 +140,13 @@ def create_starred_repos_table(starred_data, limit_applied=None):
     if not starred_data:
         return "No starred repository data found.\n\n"
 
-    # Load environment variables
-    load_dotenv()
-
-    # Get display limit from environment variable, default to 25
-    display_limit = int(os.getenv("REPORT_STARRED_LIMIT", "25"))
+    # Get display limit from configuration
+    try:
+        config = load_app_config()
+        display_limit = config.report_starred_limit
+    except Exception:
+        # Fallback if config fails
+        display_limit = 25
     if display_limit == -1:
         display_limit = len(starred_data)  # Show all repos
 
@@ -246,7 +250,7 @@ def create_footer():
 def generate_markdown_report(
     owned_repos=None,
     starred_repos=None,
-    username="hsb3",
+    username=None,
     output_file="github_inventory_report.md",
     limit_applied=None,
 ):

@@ -84,8 +84,8 @@ uv pip install -e .
 # Basic usage
 ghscan --user <username>
 
-# Common development test
-ghscan --user hsb3 --owned-only --no-report
+# Common development test (replace username with your GitHub username)
+ghscan --user username --owned-only --no-report
 
 # Run example via Makefile
 make example  # Runs sindresorhus with 50 repo limit
@@ -109,8 +109,14 @@ make example  # Runs sindresorhus with 50 repo limit
 - Package defines `ghscan` script that calls `github_inventory.cli:main`
 - CLI supports modes: full collection, owned-only, starred-only, report-only
 - Batch processing: `--batch` (defaults) or `--config filename.yaml/json`
-- Default username is "hsb3" but can be overridden with `--user` flag
+- Username is required via `--user` flag or `GITHUB_USERNAME` environment variable
 - Environment variables loaded from `.env` file (copy from `.env.example`)
+
+**Configuration Management:**
+- Centralized configuration using Pydantic validation (`src/github_inventory/config.py`)
+- All environment variables are validated and provide helpful error messages
+- Configuration supports defaults that automatically adapt to the specified username
+- Path override logic is centralized and simplified compared to previous versions
 
 ## Testing and Authentication
 
