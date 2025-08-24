@@ -5,6 +5,7 @@ docs/*/
 *.json
 !config_example.json
 !config_example.yaml
+!.devcontainer/devcontainer.json
 
 # personal configuration
 myconfig.json

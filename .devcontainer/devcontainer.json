@@ -1,0 +1,129 @@
+{
+  "name": "GitHub Inventory Python Dev",
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.12-bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts",
+      "nodeGypDependencies": true,
+      "installYarnUsingApt": false
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "installDirectlyFromGitHubRelease": true,
+      "version": "latest"
+    },
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {},
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true,
+      "installOhMyZshConfig": true,
+      "upgradePackages": true,
+      "username": "vscode",
+      "userUid": "automatic",
+      "userGid": "automatic"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.mypy-type-checker",
+        "charliermarsh.ruff",
+        "ms-python.black-formatter",
+        "tamasfe.even-better-toml",
+        "redhat.vscode-yaml",
+        "yzhang.markdown-all-in-one",
+        "davidanson.vscode-markdownlint",
+        "ms-vscode.makefile-tools",
+        "ms-vscode.vscode-json"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "./.venv/bin/python",
+        "python.terminal.activateEnvironment": true,
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.black-formatter",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.organizeImports.ruff": "explicit",
+            "source.fixAll.ruff": "explicit"
+          }
+        },
+        "python.linting.enabled": true,
+        "python.linting.mypyEnabled": true,
+        "ruff.enable": true,
+        "ruff.organizeImports": true,
+        "black-formatter.args": ["--line-length", "88"],
+        "python.terminal.activateEnvInCurrentTerminal": true,
+        "editor.formatOnSave": false,
+        "python.analysis.typeCheckingMode": "basic",
+        "mypy-type-checker.args": ["--config-file", "pyproject.toml"],
+        "python.testing.pytestEnabled": true,
+        "python.testing.pytestArgs": ["tests/", "-v"],
+        "python.testing.unittestEnabled": false,
+        "files.exclude": {
+          "**/__pycache__": true,
+          "**/.pytest_cache": true,
+          "**/.mypy_cache": true,
+          "**/.ruff_cache": true,
+          "**/*.pyc": true,
+          "**/.coverage": true
+        },
+        "search.exclude": {
+          "**/.venv": true,
+          "**/__pycache__": true,
+          "**/.pytest_cache": true,
+          "**/.mypy_cache": true,
+          "**/.ruff_cache": true
+        },
+        "files.watcherExclude": {
+          "**/.venv/**": true,
+          "**/__pycache__/**": true,
+          "**/.pytest_cache/**": true,
+          "**/.mypy_cache/**": true,
+          "**/.ruff_cache/**": true
+        },
+        "editor.rulers": [88],
+        "editor.trimAutoWhitespace": true,
+        "files.trimTrailingWhitespace": true,
+        "files.insertFinalNewline": true,
+        "evenBetterToml.formatter.alignEntries": true,
+        "evenBetterToml.formatter.compactArrays": true,
+        "markdown.preview.breaks": true,
+        "markdownlint.config": {
+          "MD013": false,
+          "MD022": true,
+          "MD040": true
+        },
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "bash",
+            "icon": "terminal-bash"
+          },
+          "zsh": {
+            "path": "zsh"
+          }
+        }
+      }
+    }
+  },
+  "forwardPorts": [],
+  "postCreateCommand": "bash .devcontainer/setup-project.sh",
+  "postAttachCommand": {
+    "server": "bash .devcontainer/setup-claude.sh"
+  },
+  "remoteUser": "vscode",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "mounts": [
+    "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,consistency=cached",
+    "source=github-inventory-history-${devcontainerId},target=/home/vscode/commandhistory,type=volume",
+    "source=github-inventory-claude-${devcontainerId},target=/home/vscode/.claude,type=volume"
+  ],
+  "containerEnv": {
+    "UV_CACHE_DIR": "/tmp/uv-cache",
+    "PYTHONPATH": "/workspaces/${localWorkspaceFolderBasename}/src",
+    "SHELL": "/bin/zsh",
+    "HISTFILE": "/home/vscode/commandhistory/.zsh_history"
+  },
+  "onCreateCommand": "sudo chown -R vscode:vscode /tmp && mkdir -p /tmp/uv-cache /home/vscode/commandhistory && chown -R vscode:vscode /tmp/uv-cache /home/vscode/commandhistory"
+}
