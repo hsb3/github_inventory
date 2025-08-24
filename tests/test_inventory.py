@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 import pytest
 
+from github_inventory.exceptions import GitHubCLIError
 from github_inventory.inventory import (
     collect_owned_repositories,
     format_date,
@@ -43,9 +44,10 @@ class TestGitHubCLICommands:
             1, "gh repo list", stderr="Command failed"
         )
 
-        result = run_gh_command("gh repo list")
+        with pytest.raises(GitHubCLIError) as exc_info:
+            run_gh_command("gh repo list")
 
-        assert result is None
+        assert "gh repo list" in str(exc_info.value)
 
     @patch("github_inventory.inventory.run_gh_command")
     def test_get_repo_list_success(self, mock_run_gh):

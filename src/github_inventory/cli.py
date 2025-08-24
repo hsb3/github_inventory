@@ -14,6 +14,12 @@ from typing import Any, Dict, List, Optional
 from dotenv import load_dotenv
 
 from .batch import get_default_configs, load_config_from_file, run_batch_processing
+from .exceptions import (
+    AuthenticationError,
+    ConfigurationError,
+    GitHubCLIError,
+    GitHubInventoryError,
+)
 from .inventory import (
     collect_owned_repositories,
     collect_starred_repositories,
@@ -434,7 +440,17 @@ def main():
 
     # Handle batch processing mode
     if args.batch or args.config:
-        handle_batch_processing(args)
+        try:
+            handle_batch_processing(args)
+        except ConfigurationError as e:
+            print(f"❌ Configuration error: {e}")
+            sys.exit(1)
+        except RuntimeError:
+            # Batch processing failures are already logged, just exit
+            sys.exit(1)
+        except GitHubInventoryError as e:
+            print(f"❌ Error: {e}")
+            sys.exit(1)
         return
 
     # Create path manager for current user
@@ -449,33 +465,53 @@ def main():
     # Handle report-only mode
     if args.report_only:
         print("Generating report from existing CSV files...")
-        owned_repos = read_csv_data(args.owned_csv)
-        starred_repos = read_csv_data(args.starred_csv)
+        try:
+            owned_repos = read_csv_data(args.owned_csv)
+            starred_repos = read_csv_data(args.starred_csv)
 
-        if not owned_repos and not starred_repos:
-            print(
-                "Error: No existing CSV files found. Run without --report-only first."
+            if not owned_repos and not starred_repos:
+                print(
+                    "Error: No existing CSV files found. Run without --report-only first."
+                )
+                sys.exit(1)
+
+            success = generate_markdown_report(
+                owned_repos=owned_repos,
+                starred_repos=starred_repos,
+                username=args.user,
+                output_file=args.report_md,
+                limit_applied=args.limit,
             )
+
+            if success:
+                print_summary(owned_repos, starred_repos)
+            sys.exit(0 if success else 1)
+        except GitHubInventoryError as e:
+            print(f"❌ Error generating report: {e}")
             sys.exit(1)
 
-        success = generate_markdown_report(
-            owned_repos=owned_repos,
-            starred_repos=starred_repos,
-            username=args.user,
-            output_file=args.report_md,
-            limit_applied=args.limit,
-        )
-
-        if success:
-            print_summary(owned_repos, starred_repos)
-        sys.exit(0 if success else 1)
-
-    # Collect repository data
-    owned_repos, starred_repos = collect_repository_data(args, path_manager)
+    # Collect repository data with error handling
+    try:
+        owned_repos, starred_repos = collect_repository_data(args, path_manager)
+    except AuthenticationError as e:
+        print(f"❌ {e}")
+        print("Please run 'gh auth login' and try again.")
+        sys.exit(1)
+    except GitHubCLIError as e:
+        print(f"❌ GitHub CLI error: {e}")
+        print("Please check your GitHub CLI installation and authentication.")
+        sys.exit(1)
+    except GitHubInventoryError as e:
+        print(f"❌ Error collecting repositories: {e}")
+        sys.exit(1)
 
     # Generate outputs and exit with appropriate status
-    success = generate_outputs(owned_repos, starred_repos, args, path_manager)
-    sys.exit(0 if success else 1)
+    try:
+        success = generate_outputs(owned_repos, starred_repos, args, path_manager)
+        sys.exit(0 if success else 1)
+    except GitHubInventoryError as e:
+        print(f"❌ Error generating outputs: {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -5,13 +5,13 @@ Handles batch processing of multiple GitHub accounts with configuration support
 """
 
 import json
-import sys
 from pathlib import Path
 from typing import List, Optional
 
 import yaml
 from pydantic import BaseModel, ValidationError
 
+from .exceptions import ConfigurationError
 from .inventory import (
     collect_owned_repositories,
     collect_starred_repositories,
@@ -108,17 +108,16 @@ def load_config_from_file(config_file: str) -> ConfigsToRun:
         return ConfigsToRun(**data)
 
     except ValidationError as e:
-        print(f"Configuration validation error in {config_file}:")
-        print(f"  {e}")
-        print("\nExpected structure:")
-        print('  {"configs": [{"account": "username", "limit": 100}, ...]}')
-        sys.exit(1)
+        raise ConfigurationError(
+            config_file,
+            f'Configuration validation error: {e}\n\nExpected structure: {{"configs": [{{"account": "username", "limit": 100}}, ...]}}',
+        ) from e
     except (ValueError, FileNotFoundError) as e:
-        print(f"Error loading configuration file: {e}")
-        sys.exit(1)
+        raise ConfigurationError(config_file, str(e)) from e
     except Exception as e:
-        print(f"Unexpected error loading configuration file {config_file}: {e}")
-        sys.exit(1)
+        raise ConfigurationError(
+            config_file, f"Unexpected error loading configuration file: {e}"
+        ) from e
 
 
 def create_output_directory(account: str, base_dir: str = "docs") -> Path:
@@ -275,6 +274,6 @@ def run_batch_processing(configs: ConfigsToRun, base_dir: str = "docs") -> None:
 
     if failed > 0:
         print(f"\n⚠️  {failed} account(s) failed. Check output above for details.")
-        sys.exit(1)
+        raise RuntimeError(f"{failed} account(s) failed during batch processing")
     else:
         print("\n🎉 All accounts processed successfully!")
