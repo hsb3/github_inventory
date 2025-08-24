@@ -33,6 +33,17 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
       - name: Run Claude Code Review
         id: claude-review
         uses: anthropics/claude-code-action@beta
