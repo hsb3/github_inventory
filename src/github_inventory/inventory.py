@@ -1,111 +1,65 @@
 #!/usr/bin/env python3
 """
 GitHub Repository Inventory Module
-Uses GitHub CLI to gather comprehensive repository information
+Uses GitHub CLI or API to gather comprehensive repository information
 """
 
 import csv
-import json
-import shlex
-import subprocess
 from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
 
-from .exceptions import (
-    AuthenticationError,
-    DataProcessingError,
-    GitHubCLIError,
-)
+from .github_client import GitHubClient, create_github_client
 
 
+# Legacy function for backward compatibility
 def run_gh_command(cmd):
-    """Run a GitHub CLI command and return the result
-
+    """Run a GitHub CLI command and return the result (legacy function)
+    
     Args:
         cmd: GitHub CLI command to run (string or list of args)
-
+        
     Returns:
         str: Command output
-
+        
     Raises:
         GitHubCLIError: When the GitHub CLI command fails
         AuthenticationError: When authentication is required but missing
     """
-    try:
-        # Use shlex.split() for security instead of shell=True
-        cmd_args = shlex.split(cmd) if isinstance(cmd, str) else cmd
-        result = subprocess.run(  # noqa: S603
-            cmd_args, capture_output=True, text=True, check=True
-        )
-        return result.stdout.strip()
-    except subprocess.CalledProcessError as e:
-        stderr = e.stderr.strip() if e.stderr else ""
-
-        # Check for common authentication errors
-        if "authentication" in stderr.lower() or "login" in stderr.lower():
-            raise AuthenticationError(
-                "GitHub CLI authentication required. Please run 'gh auth login'"
-            ) from e
-
-        # Raise GitHubCLIError with details
-        raise GitHubCLIError(cmd, stderr, e.returncode) from e
+    from .github_client import CLIGitHubClient
+    client = CLIGitHubClient()
+    return client._run_gh_command(cmd)
 
 
-def get_repo_list(username, limit=None):
+def get_repo_list(username: str, limit: Optional[int] = None, client: Optional[GitHubClient] = None) -> List[Dict[str, Any]]:
     """Get list of all repositories for a user
 
     Args:
         username: GitHub username
         limit: Maximum number of repositories to fetch
+        client: GitHub client instance (defaults to CLI client)
 
     Returns:
         list: List of repository data dictionaries
-
-    Raises:
-        GitHubCLIError: When GitHub CLI command fails
-        AuthenticationError: When authentication is required
-        DataProcessingError: When JSON parsing fails
     """
-    print("Getting repository list...")
-
-    # Get all repos with detailed JSON output
-    limit_param = f"--limit {limit}" if limit is not None else "--limit 1000"
-    cmd = f'gh repo list {username} {limit_param} --json "name,description,url,isPrivate,isFork,createdAt,updatedAt,defaultBranchRef,primaryLanguage,diskUsage"'
-
-    output = run_gh_command(cmd)
-    if not output:
-        return []
-
-    try:
-        repos = json.loads(output)
-        print(f"Found {len(repos)} repositories")
-        return repos
-    except json.JSONDecodeError as e:
-        raise DataProcessingError(
-            "JSON parsing of repository list", f"Failed to parse GitHub CLI output: {e}"
-        ) from e
+    if client is None:
+        client = create_github_client("cli")
+    return client.get_repositories(username, limit)
 
 
-def get_branch_count(owner, repo_name):
+def get_branch_count(owner: str, repo_name: str, client: Optional[GitHubClient] = None) -> Union[int, str]:
     """Get the number of branches for a repository
 
     Args:
         owner: Repository owner username
         repo_name: Repository name
+        client: GitHub client instance (defaults to CLI client)
 
     Returns:
         int or str: Number of branches, or "unknown" if unable to determine
     """
-    cmd = f'gh api repos/{owner}/{repo_name}/branches --jq "length"'
-    try:
-        result = run_gh_command(cmd)
-        if result and result.isdigit():
-            return int(result)
-        else:
-            return "unknown"
-    except GitHubCLIError:
-        # If branch count fails, return "unknown" instead of failing completely
-        # This allows the main inventory process to continue
-        return "unknown"
+    if client is None:
+        client = create_github_client("cli")
+    return client.get_branch_count(owner, repo_name)
 
 
 def format_date(date_str):
@@ -120,9 +74,21 @@ def format_date(date_str):
         return date_str
 
 
-def collect_owned_repositories(username, limit=None):
-    """Process all repositories and gather detailed information"""
-    repos = get_repo_list(username, limit)
+def collect_owned_repositories(username: str, limit: Optional[int] = None, client: Optional[GitHubClient] = None) -> List[Dict[str, Any]]:
+    """Process all repositories and gather detailed information
+    
+    Args:
+        username: GitHub username
+        limit: Maximum number of repositories to process
+        client: GitHub client instance (defaults to CLI client)
+        
+    Returns:
+        List of repository data dictionaries
+    """
+    if client is None:
+        client = create_github_client("cli")
+        
+    repos = client.get_repositories(username, limit)
     if not repos:
         print("No repositories found or error occurred")
         return []
@@ -133,7 +99,7 @@ def collect_owned_repositories(username, limit=None):
         print(f"Processing repository {i}/{len(repos)}: {repo['name']}")
 
         # Get branch count
-        branch_count = get_branch_count(username, repo["name"])
+        branch_count = client.get_branch_count(username, repo["name"])
 
         # Extract and format data
         repo_data = {
@@ -163,62 +129,37 @@ def collect_owned_repositories(username, limit=None):
     return detailed_repos
 
 
-def get_starred_repos(username=None, limit=None):
+def get_starred_repos(username: Optional[str] = None, limit: Optional[int] = None, client: Optional[GitHubClient] = None) -> List[Dict[str, Any]]:
     """Get list of all starred repositories
 
     Args:
         username: GitHub username (None for authenticated user)
         limit: Maximum number of starred repositories to fetch
+        client: GitHub client instance (defaults to CLI client)
 
     Returns:
         list: List of starred repository data dictionaries
-
-    Raises:
-        GitHubCLIError: When GitHub CLI command fails
-        AuthenticationError: When authentication is required
-        DataProcessingError: When JSON parsing fails
     """
-    print("Getting starred repositories...")
-
-    # Get all starred repos with detailed JSON output - using paginate to get all
-    if username:
-        if limit is not None:
-            cmd = f'gh api users/{username}/starred --jq ".[0:{limit}]"'
-        else:
-            cmd = f'gh api users/{username}/starred --paginate --jq "."'
-    else:
-        if limit is not None:
-            cmd = f'gh api user/starred --jq ".[0:{limit}]"'
-        else:
-            cmd = 'gh api user/starred --paginate --jq "."'
-
-    output = run_gh_command(cmd)
-    if not output:
-        return []
-
-    try:
-        # The paginated output might be multiple JSON arrays, so we need to parse each line
-        starred_repos = []
-        for line in output.strip().split("\n"):
-            if line.strip():
-                repos_batch = json.loads(line)
-                if isinstance(repos_batch, list):
-                    starred_repos.extend(repos_batch)
-                else:
-                    starred_repos.append(repos_batch)
-
-        print(f"Found {len(starred_repos)} starred repositories")
-        return starred_repos
-    except json.JSONDecodeError as e:
-        raise DataProcessingError(
-            "JSON parsing of starred repositories",
-            f"Failed to parse GitHub CLI output: {e}\nRaw output: {output[:500]}...",
-        ) from e
+    if client is None:
+        client = create_github_client("cli")
+    return client.get_starred_repositories(username, limit)
 
 
-def collect_starred_repositories(username=None, limit=None):
-    """Process all starred repositories and gather detailed information"""
-    repos = get_starred_repos(username, limit)
+def collect_starred_repositories(username: Optional[str] = None, limit: Optional[int] = None, client: Optional[GitHubClient] = None) -> List[Dict[str, Any]]:
+    """Process all starred repositories and gather detailed information
+    
+    Args:
+        username: GitHub username (None for authenticated user)
+        limit: Maximum number of starred repositories to process
+        client: GitHub client instance (defaults to CLI client)
+        
+    Returns:
+        List of starred repository data dictionaries
+    """
+    if client is None:
+        client = create_github_client("cli")
+        
+    repos = client.get_starred_repositories(username, limit)
     if not repos:
         print("No starred repositories found or error occurred")
         return []
@@ -229,7 +170,7 @@ def collect_starred_repositories(username=None, limit=None):
         print(f"Processing starred repository {i}/{len(repos)}: {repo['full_name']}")
 
         # Get branch count
-        branch_count = get_branch_count(
+        branch_count = client.get_branch_count(
             repo.get("owner", {}).get("login", ""), repo["name"]
         )
 

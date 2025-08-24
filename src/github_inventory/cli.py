@@ -20,6 +20,7 @@ from .exceptions import (
     GitHubCLIError,
     GitHubInventoryError,
 )
+from .github_client import create_github_client
 from .inventory import (
     collect_owned_repositories,
     collect_starred_repositories,
@@ -115,13 +116,23 @@ def collect_repository_data(
     """Collect owned and starred repository data"""
     owned_repos = []
     starred_repos = []
+    
+    # Create GitHub client based on arguments
+    try:
+        github_client = create_github_client(args.client_type, args.github_token)
+    except ValueError as e:
+        print(f"❌ Invalid client type: {e}")
+        sys.exit(1)
+    except AuthenticationError as e:
+        print(f"❌ Authentication error: {e}")
+        sys.exit(1)
 
     # Collect owned repositories
     if not args.starred_only:
         print(f"\nCollecting owned repositories for user: {args.user}")
         print("-" * 50)
 
-        owned_repos = collect_owned_repositories(args.user, args.limit)
+        owned_repos = collect_owned_repositories(args.user, args.limit, github_client)
 
         if owned_repos:
             owned_headers = [
@@ -147,7 +158,7 @@ def collect_repository_data(
         print("\nCollecting starred repositories...")
         print("-" * 50)
 
-        starred_repos = collect_starred_repositories(args.user, args.limit)
+        starred_repos = collect_starred_repositories(args.user, args.limit, github_client)
 
         if starred_repos:
             starred_headers = [
@@ -359,6 +370,19 @@ Examples:
     parser.add_argument(
         "--config",
         help="Run batch processing with custom configuration file (JSON/YAML)",
+    )
+    
+    # GitHub client selection arguments
+    parser.add_argument(
+        "--client-type",
+        choices=["cli", "api"],
+        default="cli",
+        help="GitHub client type: 'cli' for GitHub CLI or 'api' for direct API (default: cli)",
+    )
+    
+    parser.add_argument(
+        "--github-token",
+        help="GitHub personal access token (required for API client type)",
     )
 
     return parser
