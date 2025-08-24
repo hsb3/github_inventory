@@ -1,175 +1,66 @@
 # Contributing to GitHub Inventory
 
-Thank you for your interest in contributing to GitHub Inventory! This document provides guidelines for submitting issues and pull requests.
+Thank you for your interest in GitHub Inventory! 
 
-## Before You Start
+## 🎓 Personal Learning Project
 
-- Check existing [issues](https://github.com/hsb3/github_inventory/issues) and [pull requests](https://github.com/hsb3/github_inventory/pulls) to avoid duplicates
-- Make sure you have the GitHub CLI (`gh`) installed and authenticated
-- Familiarize yourself with the project by reading the main [README.md](README.md)
+This repository represents my personal learning journey with Python development and GitHub tooling. While I'm grateful for any interest in the project, **I'm not actively seeking external contributions at this time**.
 
-## Reporting Issues
+As a learning developer, I'm not equipped to manage issues, review pull requests, or provide ongoing support for external contributors.
 
-### Bug Reports
+## 🐛 Reporting Issues (Limited Support)
 
-When reporting bugs, please use the **Bug Report** template and include:
+If you encounter bugs, you're welcome to report them by creating an issue, but please understand:
 
-- **Environment details**: OS, Python version, GitHub CLI version
-- **Reproduction steps**: Exact commands you ran
-- **Expected vs actual behavior**: What you expected and what happened
-- **GitHub CLI status**: Output of `gh auth status` (remove sensitive info)
-- **Error output**: Full error messages and stack traces
-- **Context**: Repository counts, .env file usage, etc.
+- **Limited response time**: I may not be able to respond quickly or at all
+- **No guarantee of fixes**: Issues may remain open indefinitely
+- **Self-service preferred**: Please try troubleshooting on your own first
 
-Example bug report:
+When reporting, please include basic information:
+- Your operating system and Python version
+- The exact command you ran
+- The error message you received
 
-```bash
-# Environment
-OS: macOS 14.1
-Python: 3.12.1
-GitHub CLI: 2.40.1
+## 💡 Feature Requests
 
-# Command that failed
-gh-inventory --user octocat --limit 10
+I'm not accepting feature requests at this time, as this project serves my specific learning needs. However, you're absolutely welcome to fork the repository and adapt it for your own use!
 
-# Error
-Error: API rate limit exceeded
-```
+## 🚫 Pull Requests Not Accepted
 
-### Feature Requests
+I'm not accepting pull requests at this time. This keeps the project manageable for me as I learn and prevents me from having to review or maintain code I'm not ready to support.
 
-Use the **Feature Request** template and include:
+## 🍴 Fork-Friendly
 
-- **Problem description**: What problem does this solve?
-- **Proposed solution**: How should it work?
-- **Example usage**: Show the command and expected output
-- **GitHub API considerations**: Rate limits, permissions, etc.
+If you'd like to build upon this project:
 
-### Questions
+1. **Fork it!** You're absolutely encouraged to fork this repository
+2. **Make it your own** - adapt it to your needs
+3. **Learn from it** - use it as a starting point for your own projects
+4. **Share your improvements** - mention your fork if you make something cool!
 
-For usage questions, use the **Question** template or start a [Discussion](https://github.com/hsb3/github_inventory/discussions).
+## 🛠️ Development Information (For Reference)
 
-## Submitting Pull Requests
-
-### Development Setup
-
-1. Fork the repository
-2. Clone your fork:
-
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/github_inventory.git
-   cd github_inventory
-   ```
-
-3. Set up development environment:
-
-   ```bash
-   make setup
-   ```
-
-### Making Changes
-
-1. Create a feature branch:
-
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-2. Make your changes following the project standards:
-
-   - Use `make format` for formatting
-   - Use `make lint` for linting
-   - Use `make typecheck` for type checking
-   - Add tests for new functionality
-
-3. Test your changes:
-
-   ```bash
-   # Run all tests
-   make test
-
-   # Test CLI functionality
-   uv run ghscan --help
-   uv run ghscan --user hsb3 --limit 5 --no-report
-   ```
-
-4. Update documentation if needed
-
-### Pull Request Guidelines
-
-- Fill out the pull request template completely
-- Include a clear description of the changes
-- Reference any related issues
-- Ensure all CI checks pass
-- Keep PRs focused - one feature/fix per PR
-- Use descriptive commit messages
-
-### Code Standards
-
-- **Python 3.12+** compatibility required
-- **Type hints** for all new functions
-- **Error handling** with informative messages
-- **GitHub CLI integration** via subprocess calls
-- **No hardcoded secrets** or tokens
-- **Respect API rate limits**
-
-### Testing Requirements
-
-- All existing tests must pass
-- Add tests for new functionality
-- Test with different GitHub accounts
-- Verify GitHub CLI authentication works
-- Test edge cases (large repos, rate limits, network errors)
-
-## Development Workflow
-
-### Running Quality Checks
+If you're forking the project, here are the development commands I use:
 
 ```bash
-# Format code
-make format
+# Setup
+make setup
 
-# Run linting
-make lint
+# Quality checks  
+make format    # Format code
+make lint      # Run linting
+make test      # Run tests
+make hooks     # Run all pre-commit checks
 
-# Type checking
-make typecheck
-
-# Run all pre-commit checks (recommended before committing)
-make hooks
+# Basic testing
+uv run ghscan --help
+uv run ghscan --user octocat --limit 5
 ```
 
-### Testing Different Scenarios
+## 🤝 Thank You
 
-```bash
-# Test with public user
-uv run ghscan --user octocat --limit 10
+I appreciate your understanding and interest in the project. While I can't manage external contributions, I'm grateful that you found something useful here. Happy coding! 
 
-# Test batch processing
-uv run ghscan --batch config_example.yaml
+---
 
-# Test error handling
-uv run ghscan --user nonexistent-user-12345
-```
-
-## GitHub CLI Considerations
-
-This tool heavily relies on the GitHub CLI:
-
-- Ensure `gh auth status` shows proper authentication
-- Test with both public and private repositories
-- Be aware of API rate limits (5,000 requests/hour for authenticated users)
-- Consider pagination for users with many repositories
-
-## Getting Help
-
-- **Questions**: Use [Discussions](https://github.com/hsb3/github_inventory/discussions)
-- **Bugs**: Create an [Issue](https://github.com/hsb3/github_inventory/issues) with the Bug Report template
-- **Features**: Create an [Issue](https://github.com/hsb3/github_inventory/issues) with the Feature Request template
-
-## Review Process
-
-1. **Automated checks**: CI pipeline runs tests, linting, type checking
-2. **Manual review**: Code owner (@hsb3) reviews changes
-3. **Testing**: Verify functionality works as expected
-4. **Merge**: Once approved, changes are merged to main branch
+*This approach allows me to share my learning publicly while keeping the project manageable as I develop my skills.*
