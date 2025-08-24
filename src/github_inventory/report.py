@@ -8,7 +8,7 @@ import csv
 import os
 from datetime import datetime
 
-from dotenv import load_dotenv
+from .config import load_hierarchical_config
 
 
 def read_csv_data(filename):
@@ -63,8 +63,8 @@ def create_owned_repos_table(repos_data, limit_applied=None):
     if not repos_data:
         return "No owned repository data found.\n\n"
 
-    # Load environment variables
-    load_dotenv()
+    # Load environment variables from hierarchical configuration
+    load_hierarchical_config()
 
     # Get display limit from environment variable, default to 30
     display_limit = int(os.getenv("REPORT_OWNED_LIMIT", "30"))
@@ -138,8 +138,8 @@ def create_starred_repos_table(starred_data, limit_applied=None):
     if not starred_data:
         return "No starred repository data found.\n\n"
 
-    # Load environment variables
-    load_dotenv()
+    # Load environment variables from hierarchical configuration
+    load_hierarchical_config()
 
     # Get display limit from environment variable, default to 25
     display_limit = int(os.getenv("REPORT_STARRED_LIMIT", "25"))

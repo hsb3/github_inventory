@@ -75,17 +75,44 @@ uv run ghscan --config accounts.yaml
 
 ## Environment Configuration
 
-The tool automatically loads settings from a `.env` file in the project root:
+The tool uses a hierarchical configuration system that checks multiple locations in order of priority:
+
+1. **Project-specific**: `.env` file in current directory (highest priority)
+2. **Global XDG**: `~/.config/ghscan/.env` (recommended for global settings)  
+3. **Legacy global**: `~/.ghscan/.env` (backward compatibility)
+4. **Environment variables**: System environment variables (lowest priority)
 
 ```bash
-# .env
+# Example .env file (can be placed in any of the above locations)
 GITHUB_USERNAME=your-username          # Default username
 REPORT_OWNED_LIMIT=30                 # Max owned repos in reports (-1 = no limit)
 REPORT_STARRED_LIMIT=25               # Max starred repos in reports (-1 = no limit)
 OWNED_REPOS_CSV=docs/user/repos.csv   # Output paths
 ```
 
-Copy `.env.example` to `.env` and customize as needed. Environment variables override CLI defaults.
+### Global Installation Setup
+
+When installed globally with `uv tool install .`, you can set user-wide defaults:
+
+```bash
+# Create global config directory
+mkdir -p ~/.config/ghscan
+
+# Set global defaults
+echo "GITHUB_USERNAME=your-username" > ~/.config/ghscan/.env
+```
+
+Project-specific `.env` files will override global settings when present.
+
+### Configuration Info
+
+Use `--config-info` to see which configuration files are loaded:
+
+```bash
+ghscan --config-info
+```
+
+Copy `.env.example` to `.env` and customize as needed.
 
 ## Output
 

@@ -10,9 +10,8 @@ import platform
 import subprocess
 import sys
 
-from dotenv import load_dotenv
-
 from .batch import get_default_configs, load_config_from_file, run_batch_processing
+from .config import get_config_info, load_hierarchical_config
 from .inventory import (
     collect_owned_repositories,
     collect_starred_repositories,
@@ -57,8 +56,8 @@ def open_directory(directory_path):
 
 def create_parser():
     """Create the argument parser"""
-    # Load environment variables
-    load_dotenv()
+    # Load environment variables from hierarchical configuration
+    load_hierarchical_config()
 
     # Get default values from environment or fallback values
     default_username = os.getenv("GITHUB_USERNAME", "hsb3")
@@ -179,6 +178,12 @@ Examples:
         help="Run batch processing with custom configuration file (JSON/YAML)",
     )
 
+    parser.add_argument(
+        "--config-info",
+        action="store_true",
+        help="Show current configuration sources and their status",
+    )
+
     return parser
 
 
@@ -247,6 +252,22 @@ def main():
     """Main CLI function"""
     parser = create_parser()
     args = parser.parse_args()
+
+    # Handle --config-info command
+    if args.config_info:
+        print("Configuration Sources (in order of priority):")
+        print("=" * 50)
+        
+        config_info = get_config_info()
+        for i, (name, info) in enumerate(config_info.items(), 1):
+            status = "✅ Found" if info["exists"] else "❌ Not found"
+            readable = " (readable)" if info["readable"] else " (not readable)" if info["exists"] else ""
+            print(f"{i}. {name}: {status}{readable}")
+            print(f"   Path: {info['path']}")
+        
+        print(f"\nEnvironment variables are used as fallback for any missing values.")
+        print(f"Higher priority sources override lower priority ones.")
+        return
 
     # Handle --open command
     if args.open:
