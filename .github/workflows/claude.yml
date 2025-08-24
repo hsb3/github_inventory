@@ -55,7 +55,7 @@ jobs:
           # assignee_trigger: "claude-bot"
 
           # Optional: Allow Claude to run specific commands
-          allowed_tools: "Bash(make *),Bash(uv *),Bash(pytest *),Bash(ruff *),Bash(black *),Bash(mypy *),Bash(pre-commit run *)"
+          allowed_tools: "Bash(make *),Bash(uv *),Bash(pytest *),Bash(ruff *),Bash(black *),Bash(mypy *),Bash(pre-commit run *),Bash(grep *),Bash(find *),Bash(git status),Bash(git diff)"
 
           # Optional: Add custom instructions for Claude to customize its behavior for your project
           custom_instructions: |
@@ -64,7 +64,15 @@ jobs:
             - Run make commands when available (make test, make lint, make format)
             - Always ensure pre-commit hooks pass
             - Follow the coding standards defined in .pre-commit-config.yaml
-            - Test changes with pytest before suggesting completion
+
+            CRITICAL: When making code changes that affect function signatures or interfaces:
+            1. ALWAYS update corresponding tests to match new signatures
+            2. Search for all test files that mock or call the changed functions
+            3. Run the full test suite (make test or pytest tests/ -v) before completion
+            4. If tests fail, fix them - don't just ignore test failures
+            5. Verify pre-commit hooks pass after test updates
+
+            Test maintenance is mandatory - no code changes should be considered complete without passing tests.
 
           # Optional: Custom environment variables for Claude
           claude_env: |
