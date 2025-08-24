@@ -136,6 +136,49 @@ class TestCLIParser:
                     assert args.user == "fileuser"
                     assert args.owned_csv == "file_owned.csv"
 
+    def test_open_flag(self):
+        """Test --open flag functionality"""
+        parser = create_parser()
+
+        # Test default value
+        args = parser.parse_args([])
+        assert not args.open
+
+        # Test setting flag
+        args = parser.parse_args(["--open"])
+        assert args.open
+
+    def test_client_type_option(self):
+        """Test --client-type option with choices"""
+        parser = create_parser()
+
+        # Test default value
+        args = parser.parse_args([])
+        assert args.client_type == "cli"
+
+        # Test valid choices
+        args = parser.parse_args(["--client-type", "cli"])
+        assert args.client_type == "cli"
+
+        args = parser.parse_args(["--client-type", "api"])
+        assert args.client_type == "api"
+
+        # Test invalid choice should raise SystemExit
+        with pytest.raises(SystemExit):
+            parser.parse_args(["--client-type", "invalid"])
+
+    def test_github_token_option(self):
+        """Test --github-token option"""
+        parser = create_parser()
+
+        # Test default value
+        args = parser.parse_args([])
+        assert args.github_token is None
+
+        # Test setting token
+        args = parser.parse_args(["--github-token", "ghp_test_token"])
+        assert args.github_token == "ghp_test_token"  # noqa: S105
+
 
 class TestCLIIntegration:
     """Integration tests for CLI functionality"""

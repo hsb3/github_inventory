@@ -1,6 +1,6 @@
 # Contributing to GitHub Inventory
 
-Thank you for your interest in GitHub Inventory! 
+Thank you for your interest in GitHub Inventory!
 
 ## 🎓 Personal Learning Project
 
@@ -46,7 +46,7 @@ If you're forking the project, here are the development commands I use:
 # Setup
 make setup
 
-# Quality checks  
+# Quality checks
 make format    # Format code
 make lint      # Run linting
 make test      # Run tests
@@ -59,7 +59,7 @@ uv run ghscan --user octocat --limit 5
 
 ## 🤝 Thank You
 
-I appreciate your understanding and interest in the project. While I can't manage external contributions, I'm grateful that you found something useful here. Happy coding! 
+I appreciate your understanding and interest in the project. While I can't manage external contributions, I'm grateful that you found something useful here. Happy coding!
 
 ---
 

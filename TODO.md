@@ -86,3 +86,38 @@ REPORT_OUTPUT_MD=docs/hs3/README.md
 # GitHub CLI settings (optional - uses system gh config by default)
 # GITHUB_TOKEN=your_personal_access_token
 ```
+
+### CLI command & option testing
+
+`ghscan --help`
+
+```bash
+ghscan --help
+usage: ghscan [-h] [--user USER] [--owned-only] [--starred-only] [--report-only] [--owned-csv OWNED_CSV] [--starred-csv STARRED_CSV] [--report-md REPORT_MD] [--no-report] [--limit LIMIT] [--version] [--open] [--batch] [--config CONFIG]
+              [--client-type {cli,api}] [--github-token GITHUB_TOKEN]
+
+GitHub Repository Inventory Tool
+
+options:
+  -h, --help            show this help message and exit
+  --user USER, -u USER  GitHub username (default: hsb3)
+  --owned-only          Only collect owned repositories
+  --starred-only        Only collect starred repositories
+  --report-only         Only generate markdown report from existing CSV files
+  --owned-csv OWNED_CSV
+                        Output file for owned repositories CSV (default: docs/hsb3/repos.csv)
+  --starred-csv STARRED_CSV
+                        Output file for starred repositories CSV (default: docs/hsb3/starred_repos.csv)
+  --report-md REPORT_MD
+                        Output file for markdown report (default: docs/hsb3/README.md)
+  --no-report           Skip generating markdown report
+  --limit LIMIT         Limit number of repositories to process (useful for large accounts)
+  --version             show program's version number and exit
+  --open                Open the output directory (docs) in your default file manager
+  --batch               Run batch processing with default account configurations
+  --config CONFIG       Run batch processing with custom configuration file (JSON/YAML)
+  --client-type {cli,api}
+                        GitHub client type to use: 'cli' (default) uses GitHub CLI, 'api' makes direct API calls
+  --github-token GITHUB_TOKEN
+                        GitHub personal access token (required when using --client-type=api)
+```

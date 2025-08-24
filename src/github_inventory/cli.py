@@ -82,18 +82,6 @@ class PathManager:
         os.makedirs(output_dir, exist_ok=True)
 
 
-def get_output_base():
-    """Determine output directory based on installation type"""
-    if os.path.exists("pyproject.toml") and os.path.exists("src/github_inventory"):
-        # Development mode - use relative paths
-        return "docs"
-    else:
-        # Global install - use home directory
-        output_base = os.path.expanduser("~/.ghscan")
-        os.makedirs(output_base, exist_ok=True)
-        return output_base
-
-
 def handle_batch_processing(args) -> None:
     """Handle batch processing mode"""
     if args.batch and args.config:
@@ -444,7 +432,10 @@ def main():
 
     # Handle --open command
     if args.open:
-        open_directory(get_output_base())
+        # Use default username to determine output directory
+        default_username = os.getenv("GITHUB_USERNAME", "hsb3")
+        path_manager = PathManager(default_username)
+        open_directory(path_manager.output_base)
         return
 
     print("GitHub Repository Inventory Tool")
