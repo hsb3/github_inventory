@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 GitHub Inventory is a CLI tool that uses the GitHub CLI (`gh`) to gather comprehensive information about GitHub repositories and starred projects. It exports data to CSV files and generates detailed Markdown reports.
 
+**ACTIVE FEATURE DEVELOPMENT:** Currently developing Python Quick Look Tool (`python_quicklook/`) - a comprehensive static analysis tool that generates rich markdown reports with embedded visual diagrams for any Python project. Supports both local directories and GitHub URLs (`github.com/username/reponame`).
+
 **Core Architecture:**
 
 - `src/github_inventory/cli.py` - Command-line interface and argument parsing
@@ -142,3 +144,22 @@ When editing README.md or other markdown files, follow these formatting rules to
 - Avoid line lengths over 80 characters when possible (MD013 disabled but good practice)
 
 These files are excluded from markdown linting: TODO.md, CLAUDE.md
+
+## Python Quick Look Tool Development
+
+**Location**: `python_quicklook/` (standalone tool at project root)
+
+**Purpose**: Generate comprehensive markdown reports with visual diagrams for Python projects
+
+**Key Features Being Developed**:
+- AST-based static analysis (no code execution)
+- Visual class diagrams via pyreverse integration
+- GitHub URL support (`github.com/username/reponame`)
+- Single markdown report + `assets/` folder with PNG diagrams
+- Complete project context extraction (README, dependencies, CLI patterns)
+
+**Development Setup**:
+- Uses same tooling: ruff, mypy, black, pytest
+- Dependencies managed via `uv add` in project virtual environment
+- Tests nested in `python_quicklook/tests/`
+- See `python_quicklook/PRD.md` for complete requirements

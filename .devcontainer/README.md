@@ -15,9 +15,11 @@ This configuration follows modern devcontainer best practices:
 ## 🏗️ Architecture
 
 ### Base Image
+
 - `mcr.microsoft.com/devcontainers/python:1-3.12-bullseye` - Official Python 3.12 image
 
 ### Features Used
+
 1. **Node.js LTS** - `ghcr.io/devcontainers/features/node:1`
    - Latest LTS version with npm
    - Includes build dependencies for native modules
@@ -34,18 +36,21 @@ This configuration follows modern devcontainer best practices:
    - Essential development tools
 
 ### Setup Scripts
+
 - **`setup-project.sh`**: Python environment and project dependencies
 - **`setup-claude.sh`**: Claude Code verification and authentication guidance
 
 ## 🚀 Usage
 
 ### Local Development (VS Code + Docker)
+
 1. Install "Dev Containers" extension in VS Code
 2. Open project in VS Code
 3. Click "Reopen in Container" when prompted
 4. Wait for automatic setup to complete
 
 ### GitHub Codespaces
+
 1. Go to your GitHub repository
 2. Click "Code" → "Codespaces" → "Create codespace"
 3. Wait for automatic setup to complete
@@ -72,23 +77,27 @@ claude
 ## 🔧 Environment Details
 
 ### Python Environment
+
 - Python 3.12 with uv package manager
 - Virtual environment at `.venv/`
 - All project dependencies installed
 - Pre-commit hooks configured
 
 ### Development Tools
+
 - Zsh with Oh My Zsh (default shell)
 - GitHub CLI authenticated through VS Code
 - Node.js LTS with npm
 - Claude Code CLI ready to authenticate
 
 ### VS Code Extensions
+
 - Python development (Python, mypy, ruff, black)
 - File support (TOML, YAML, Markdown)
 - Makefile tools
 
 ### Persistent Data
+
 - **Command history**: Zsh history persists across rebuilds
 - **Claude authentication**: Stored in dedicated volume
 - **Git configuration**: Mounted from host system
@@ -96,6 +105,7 @@ claude
 ## 🐛 Troubleshooting
 
 ### Container Build Issues
+
 ```bash
 # Clear Docker cache and rebuild
 docker system prune -a
@@ -103,6 +113,7 @@ docker system prune -a
 ```
 
 ### Claude Code Issues
+
 ```bash
 # Check installation
 claude --version
@@ -116,6 +127,7 @@ npm install -g @anthropic-ai/claude-code@latest
 ```
 
 ### Python Environment Issues
+
 ```bash
 # Check virtual environment
 source .venv/bin/activate
@@ -128,6 +140,7 @@ make setup
 ```
 
 ### Permission Issues
+
 ```bash
 # Fix ownership (run as root in container)
 sudo chown -R vscode:vscode /tmp/uv-cache /home/vscode

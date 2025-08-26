@@ -67,7 +67,7 @@ class PathManager:
 
     def _is_default_path(self, path: str) -> bool:
         """Check if path is a default path pattern that should be overridden"""
-        default_username = os.getenv("GITHUB_USERNAME", "hsb3")
+        default_username = os.getenv("GITHUB_USERNAME", "octocat")
         default_patterns = [
             f"docs/{default_username}/",
             "github_inventory_detailed.csv",
@@ -234,7 +234,7 @@ def create_parser():
     load_dotenv()
 
     # Get default values from environment or fallback values
-    default_username = os.getenv("GITHUB_USERNAME", "hsb3")
+    default_username = os.getenv("GITHUB_USERNAME", "octocat")
 
     # Create path manager for default paths
     path_manager = PathManager(default_username)
@@ -433,7 +433,7 @@ def main():
     # Handle --open command
     if args.open:
         # Use default username to determine output directory
-        default_username = os.getenv("GITHUB_USERNAME", "hsb3")
+        default_username = os.getenv("GITHUB_USERNAME", "octocat")
         path_manager = PathManager(default_username)
         open_directory(path_manager.output_base)
         return
