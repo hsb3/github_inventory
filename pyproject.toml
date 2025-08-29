@@ -24,6 +24,9 @@ dependencies = [
     "python-dotenv>=0.19.0",
     "pydantic>=2.0.0",
     "pyyaml>=6.0.0",
+    "networkx>=3.5",
+    "pyvis>=0.3.2",
+    "matplotlib>=3.10.5",
 ]
 
 [project.urls]
@@ -78,6 +81,46 @@ dev-dependencies = [
     "pymarkdownlnt>=0.9.32",
     "pre-commit>=3.0.0",
     "pytest-cov>=6.2.1",
+]
+
+[dependency-groups]
+analysis = [
+    # Advanced static analysis and code quality tools
+    "prospector>=1.17.0",
+    "pylint>=3.3.0",
+    "astroid>=3.3.0",
+    "flake8>=7.3.0",
+    "flake8-polyfill>=1.0.0",
+    "pep8-naming>=0.10.0",
+    "pycodestyle>=2.14.0",
+    "pydocstyle>=6.3.0",
+    "pyflakes>=3.4.0",
+    "radon>=6.0.0",
+    "pylint-celery>=0.3",
+    "pylint-django>=2.6.0",
+    "pylint-plugin-utils>=0.9.0",
+    "dodgy>=0.2.0",
+    "mccabe>=0.7.0",
+    "requirements-detector>=1.4.0",
+    "setoptconf-tmp>=0.3.0",
+    # Documentation generation
+    "pdoc>=15.0.0",
+    # Code analysis and parsing
+    "tree-sitter>=0.25.0",
+    "tree-sitter-python>=0.23.0",
+    # Utility dependencies
+    "colorama>=0.4.6",
+    "dill>=0.4.0",
+    "graphviz>=0.21",
+    "griffe>=1.12.0",
+    "isort>=6.0.0",
+    "jinja2>=3.1.0",
+    "mando>=0.7.0",
+    "markupsafe>=3.0.0",
+    "semver>=3.0.0",
+    "snowballstemmer>=3.0.0",
+    "toml>=0.10.0",
+    "tomlkit>=0.13.0"
 ]
 
 [tool.pymarkdownlnt]

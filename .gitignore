@@ -1,12 +1,18 @@
+
+# package under development -- exclude from main branch
+codebase_viz/
+
 # Generated files
 docs/*/
-!docs/output_example/
 *.yaml
 *.json
+*.png
+!docs/output_example/
 !config_example.json
 !config_example.yaml
 !.devcontainer/devcontainer.json
 !.pre-commit-config.yaml
+
 
 # personal configuration
 myconfig.json

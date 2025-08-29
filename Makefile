@@ -1,6 +1,6 @@
 # GitHub Inventory - Development Makefile
 
-.PHONY: help setup install install-global hooks format lint typecheck test clean example dev-build dev-up
+.PHONY: help setup install install-analysis install-global hooks format lint typecheck test clean example dev-build dev-up
 .DEFAULT_GOAL := help
 
 help:  ## Show this help message
@@ -13,6 +13,7 @@ help:  ## Show this help message
 	@echo ""
 	@echo "\033[1m🔧 Development:\033[0m"
 	@echo "  \033[36minstall\033[0m         Install dependencies in virtual environment"
+	@echo "  \033[36minstall-analysis\033[0m Install additional analysis tools (prospector, pylint, etc.)"
 	@echo "  \033[36mhooks\033[0m           Install and run pre-commit hooks (format, lint, type check)"
 	@echo "  \033[36mtest\033[0m            Run all tests with coverage report"
 	@echo ""
@@ -34,10 +35,15 @@ help:  ## Show this help message
 	@echo "\033[1m💡 Quick Start:\033[0m"
 	@echo "  \033[33mmake setup\033[0m      # For development work"
 	@echo "  \033[33mmake install-global\033[0m # For global ghscan command"
+	@echo "  \033[33mmake install-analysis\033[0m # For advanced analysis tools (branch-specific)"
 	@echo "  \033[33mghscan --help\033[0m   # See all available options"
 
 check-uv:
 	@command -v uv >/dev/null 2>&1 || { echo "❌ uv not found. Install with: curl -LsSf https://astral.sh/uv/install.sh | sh"; exit 1; }
+
+check-env: check-uv  ## Check if virtual environment and dependencies are ready
+	@test -d .venv || { echo "❌ Virtual environment not found. Run 'make install' first."; exit 1; }
+	@test -f .venv/pyvenv.cfg || { echo "❌ Virtual environment incomplete. Run 'make install' first."; exit 1; }
 
 install: check-uv  ## Install dependencies in virtual environment
 	@echo "📦 Setting up virtual environment and dependencies..."
@@ -45,6 +51,12 @@ install: check-uv  ## Install dependencies in virtual environment
 	uv sync --all-extras
 	uv pip install -e .
 	@echo "✅ Dependencies installed! Run 'source .venv/bin/activate' to use ghscan locally."
+
+install-analysis: check-uv  ## Install additional analysis tools (prospector, pylint, etc.)
+	@echo "🔬 Installing advanced analysis tools..."
+	@test -d .venv || { echo "❌ Virtual environment not found. Run 'make install' first."; exit 1; }
+	uv sync --group analysis
+	@echo "✅ Analysis tools installed! Use prospector, pylint, pdoc, etc."
 
 install-global: check-uv  ## Install ghscan command globally with uv tool
 	@echo "🌍 Installing ghscan globally..."
@@ -56,20 +68,20 @@ hooks: install  ## Install and run pre-commit hooks (format, lint, type check)
 	uv run pre-commit install
 	uv run pre-commit run --all-files
 
-format: install  ## Format code with ruff and black
+format: check-env  ## Format code with ruff and black
 	@echo "🎨 Formatting code..."
 	uv run ruff format src/ tests/
 	uv run black src/ tests/
 
-lint: install  ## Lint code with ruff
+lint: check-env  ## Lint code with ruff
 	@echo "🔍 Linting code..."
 	uv run ruff check src/ tests/
 
-typecheck: install  ## Type check code with mypy
+typecheck: check-env  ## Type check code with mypy
 	@echo "🔬 Type checking code..."
 	uv run mypy src/
 
-test: install  ## Run all tests with coverage report
+test: check-env  ## Run all tests with coverage report
 	@echo "🧪 Running tests with coverage..."
 	uv run pytest tests/ --cov=src/github_inventory --cov-report=term-missing -v
 
@@ -79,7 +91,7 @@ setup: install hooks test  ## Complete development environment setup (recommende
 	@echo "💡 To use ghscan locally: source .venv/bin/activate && ghscan --help"
 	@echo "🌍 To install globally instead: make install-global"
 
-example: install  ## Run example ghscan command (sindresorhus, 50 repo limit)
+example: check-env  ## Run example ghscan command (sindresorhus, 50 repo limit)
 	@echo "📝 Running example command..."
 	uv run ghscan --user sindresorhus --limit 50 --no-report
 
