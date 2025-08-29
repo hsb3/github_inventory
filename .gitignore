@@ -6,6 +6,7 @@ docs/*/
 !config_example.json
 !config_example.yaml
 !.devcontainer/devcontainer.json
+!.pre-commit-config.yaml
 
 # personal configuration
 myconfig.json
